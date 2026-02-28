@@ -2,3 +2,8 @@ kopier til bash:
 
 cd kandidattest
 python -m http.server 8080
+
+
+Kopier url:
+
+http://localhost:8080
