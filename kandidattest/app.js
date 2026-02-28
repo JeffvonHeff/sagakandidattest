@@ -25,6 +25,7 @@
     qTitle: document.getElementById("qTitle"),
     qMeta: document.getElementById("qMeta"),
     qText: document.getElementById("qText"),
+    qWeight: document.getElementById("qWeight"),
     qExplain: document.getElementById("qExplain"),
     explainBox: document.getElementById("explainBox"),
 
@@ -257,6 +258,7 @@
     els.qTitle.textContent = `Udsagn ${state.step + 1}`;
     els.qMeta.textContent = q.topic ? `Emne: ${q.topic}` : "";
     els.qText.textContent = q.text;
+    els.qWeight.value = String(clampInt(r.weight, 1, 3));
 
     els.qExplain.textContent = q.explain || "";
     els.explainBox.classList.toggle("hidden", !(state.showExplain && q.explain));
@@ -536,7 +538,7 @@
 
     const r = ensureResponse(q);
     r.value = Number(value);
-    r.weight = clampInt(q.defaultWeight || 1, 1, 3);
+    r.weight = clampInt(r.weight || q.defaultWeight || 1, 1, 3);
     state.responses[q.id] = r;
 
     if (state.step < data.questions.length - 1) {
@@ -556,7 +558,7 @@
 
     const r = ensureResponse(q);
     r.value = null;
-    r.weight = clampInt(q.defaultWeight || 1, 1, 3);
+    r.weight = clampInt(r.weight || q.defaultWeight || 1, 1, 3);
     state.responses[q.id] = r;
 
     if (state.step < data.questions.length - 1) {
@@ -568,6 +570,17 @@
       save();
       renderResult();
     }
+  }
+
+
+  function updateCurrentWeight(value) {
+    const q = currentQuestion();
+    if (!q) return;
+
+    const r = ensureResponse(q);
+    r.weight = clampInt(value, 1, 3);
+    state.responses[q.id] = r;
+    save();
   }
 
   function goBack() {
@@ -677,6 +690,10 @@
 
     els.areaInput.addEventListener("blur", () => {
       validateArea(true);
+    });
+
+    els.qWeight.addEventListener("change", () => {
+      updateCurrentWeight(els.qWeight.value);
     });
   }
 
