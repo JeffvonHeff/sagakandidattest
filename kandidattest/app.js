@@ -258,14 +258,14 @@
     return candidates.filter(c => normalizeArea(c.area).includes(a));
   }
 
-  // Scoring: for hvert spørgsmål med bruger svar og kandidat svar beregnes afstand.
-  // Maks afstand pr spørgsmål er 4 (fra -2 til 2).
-  // Match pr spørgsmål = 1 - (absDiff / 4)
-  // Vægtning multiplicerer bidraget.
+  // Scoring: vægtet cosine similarity på centrerede Likert-værdier.
+  // 1) Svarskala er -2..2 omkring 0.
+  // 2) Vi centrerer pr. person (trækker personens gennemsnit fra),
+  //    så "altid enig/uenig" bias dæmpes.
+  // 3) Vi bruger brugerens vægt (1..3) som wi i cosine-formlen.
+  // 4) Similarity i [-1,1] mappes til procent: 50 * (sim + 1).
   function scoreCandidate(candidate) {
-    let totalWeight = 0;
-    let totalScore = 0;
-    let compared = 0;
+    const comparableAnswers = [];
     const topicTotals = {};
 
     for (const q of data.questions) {
@@ -276,36 +276,73 @@
       if (candVal === null || candVal === undefined) continue;
 
       const w = clampInt(user.weight, 1, 3);
-      const diff = Math.abs(Number(user.value) - Number(candVal));
-      const match = 1 - (diff / 4);
       const topic = (q.topic || "Øvrigt").trim() || "Øvrigt";
 
-      if (!topicTotals[topic]) {
-        topicTotals[topic] = { totalWeight: 0, totalScore: 0, compared: 0 };
-      }
+      const comparable = {
+        topic,
+        weight: w,
+        userValue: Number(user.value),
+        candidateValue: Number(candVal)
+      };
 
-      totalWeight += w;
-      totalScore += match * w;
-      compared += 1;
+      comparableAnswers.push(comparable);
 
-      topicTotals[topic].totalWeight += w;
-      topicTotals[topic].totalScore += match * w;
-      topicTotals[topic].compared += 1;
+      if (!topicTotals[topic]) topicTotals[topic] = [];
+      topicTotals[topic].push(comparable);
     }
 
+    const totalSim = weightedCenteredCosine(comparableAnswers);
+    const compared = comparableAnswers.length;
+
     const topicScores = Object.entries(topicTotals)
-      .map(([topic, totals]) => ({
+      .map(([topic, values]) => ({
         topic,
-        compared: totals.compared,
-        pct: totals.totalWeight > 0 ? Math.round((totals.totalScore / totals.totalWeight) * 100) : 0
+        compared: values.length,
+        pct: similarityToPercent(weightedCenteredCosine(values))
       }))
       .sort((a, b) => {
         if (b.pct !== a.pct) return b.pct - a.pct;
         return a.topic.localeCompare(b.topic, "da");
       });
 
-    const pct = totalWeight > 0 ? Math.round((totalScore / totalWeight) * 100) : 0;
+    const pct = similarityToPercent(totalSim);
     return { pct, compared, topicScores };
+  }
+
+  function weightedCenteredCosine(rows) {
+    if (!Array.isArray(rows) || rows.length === 0) return 0;
+
+    let userMeanSum = 0;
+    let candMeanSum = 0;
+    for (const row of rows) {
+      userMeanSum += row.userValue;
+      candMeanSum += row.candidateValue;
+    }
+
+    const userMean = userMeanSum / rows.length;
+    const candMean = candMeanSum / rows.length;
+
+    let numerator = 0;
+    let userNormSq = 0;
+    let candNormSq = 0;
+
+    for (const row of rows) {
+      const w = row.weight;
+      const uPrime = row.userValue - userMean;
+      const cPrime = row.candidateValue - candMean;
+      numerator += w * uPrime * cPrime;
+      userNormSq += w * uPrime * uPrime;
+      candNormSq += w * cPrime * cPrime;
+    }
+
+    const denominator = Math.sqrt(userNormSq) * Math.sqrt(candNormSq);
+    if (denominator === 0) return 0;
+    return numerator / denominator;
+  }
+
+  function similarityToPercent(similarity) {
+    const bounded = Math.max(-1, Math.min(1, similarity));
+    return Math.round(50 * (bounded + 1));
   }
 
   function scoreAllCandidates(candidates) {
