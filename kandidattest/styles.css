@@ -218,6 +218,25 @@ input:focus, select:focus, button:focus{
   color: #111;
 }
 
+.topic-scores{
+  margin-top: 10px;
+}
+
+.topic-score-list{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.topic-score-chip{
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: rgba(0,0,0,.04);
+  font-size: .85rem;
+}
+
 /* Explain box */
 .explain{
   margin-top: 14px;
