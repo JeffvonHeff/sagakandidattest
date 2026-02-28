@@ -90,6 +90,18 @@ body{
   font-size: .95rem;
 }
 
+.error-text{
+  display:block;
+  margin-top:6px;
+  color:#b00020;
+}
+
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  transform:none;
+}
+
 input, select{
   width:100%;
   padding: 12px 12px;
