@@ -32,47 +32,6 @@ window.QUIZ_DATA = {
     { id: "q25", topic: "Demokrati", text: "Kommunen skal gøre det nemmere at forstå politiske beslutninger.", explain: "Klar og enkel kommunikation.", defaultWeight: 1 }
   ],
 
-  // Kandidaters positionsdata på samme spørgsmål
-  // Hvis en kandidat ikke har svaret, brug null og håndter det i scoring
-  candidates: [
-    {
-      id: "c1",
-      name: "Kandidat A",
-      party: "Parti X",
-      area: "København",
-      answers: {
-        q1: 2, q2: 2, q3: 1, q4: 1, q5: 2,
-        q6: 2, q7: 2, q8: 1, q9: 2, q10: 1,
-        q11: 1, q12: 2, q13: 2, q14: 1, q15: 2,
-        q16: 1, q17: 2, q18: 0, q19: 1, q20: 1,
-        q21: 2, q22: 1, q23: 2, q24: 2, q25: 2
-      }
-    },
-    {
-      id: "c2",
-      name: "Kandidat B",
-      party: "Parti Y",
-      area: "København",
-      answers: {
-        q1: 0, q2: 1, q3: 0, q4: -1, q5: 1,
-        q6: 0, q7: 1, q8: 0, q9: 1, q10: 2,
-        q11: 0, q12: 0, q13: 1, q14: 1, q15: 0,
-        q16: 0, q17: 1, q18: 2, q19: 0, q20: 2,
-        q21: 0, q22: -1, q23: 1, q24: 1, q25: 1
-      }
-    },
-    {
-      id: "c3",
-      name: "Kandidat C",
-      party: "Parti Z",
-      area: "Aarhus",
-      answers: {
-        q1: -1, q2: 0, q3: 1, q4: 2, q5: 1,
-        q6: 1, q7: 1, q8: 2, q9: 0, q10: -1,
-        q11: 2, q12: 2, q13: 1, q14: 0, q15: 1,
-        q16: 2, q17: 1, q18: -1, q19: 1, q20: 0,
-        q21: 2, q22: 1, q23: 2, q24: 2, q25: 1
-      }
-    }
-  ]
+  // Kandidater indlæses fra spreadsheet-filen data/kandidat_svar.csv i app.js
+  candidates: []
 };
