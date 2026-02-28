@@ -266,6 +266,7 @@
     let totalWeight = 0;
     let totalScore = 0;
     let compared = 0;
+    const topicTotals = {};
 
     for (const q of data.questions) {
       const user = state.responses[q.id];
@@ -277,14 +278,34 @@
       const w = clampInt(user.weight, 1, 3);
       const diff = Math.abs(Number(user.value) - Number(candVal));
       const match = 1 - (diff / 4);
+      const topic = (q.topic || "Øvrigt").trim() || "Øvrigt";
+
+      if (!topicTotals[topic]) {
+        topicTotals[topic] = { totalWeight: 0, totalScore: 0, compared: 0 };
+      }
 
       totalWeight += w;
       totalScore += match * w;
       compared += 1;
+
+      topicTotals[topic].totalWeight += w;
+      topicTotals[topic].totalScore += match * w;
+      topicTotals[topic].compared += 1;
     }
 
+    const topicScores = Object.entries(topicTotals)
+      .map(([topic, totals]) => ({
+        topic,
+        compared: totals.compared,
+        pct: totals.totalWeight > 0 ? Math.round((totals.totalScore / totals.totalWeight) * 100) : 0
+      }))
+      .sort((a, b) => {
+        if (b.pct !== a.pct) return b.pct - a.pct;
+        return a.topic.localeCompare(b.topic, "da");
+      });
+
     const pct = totalWeight > 0 ? Math.round((totalScore / totalWeight) * 100) : 0;
-    return { pct, compared };
+    return { pct, compared, topicScores };
   }
 
   function scoreAllCandidates(candidates) {
@@ -294,7 +315,8 @@
         return {
           candidate: c,
           pct: s.pct,
-          compared: s.compared
+          compared: s.compared,
+          topicScores: s.topicScores
         };
       })
       .sort((a, b) => b.pct - a.pct);
@@ -333,8 +355,13 @@
     list.appendChild(buildDiffList(row.candidate));
     details.appendChild(list);
 
+    const topicBox = document.createElement("div");
+    topicBox.className = "topic-scores";
+    topicBox.appendChild(buildTopicScoreList(row.topicScores));
+
     div.appendChild(top);
     div.appendChild(meta);
+    div.appendChild(topicBox);
     div.appendChild(details);
 
     if (idx === 0) div.style.outline = "2px solid rgba(255,255,255,.22)";
@@ -364,6 +391,37 @@
       none.textContent = "Ingen sammenlignelige udsagn for denne kandidat.";
       wrap.appendChild(none);
     }
+    return wrap;
+  }
+
+  function buildTopicScoreList(topicScores) {
+    const wrap = document.createElement("div");
+
+    const heading = document.createElement("div");
+    heading.className = "small muted";
+    heading.textContent = "Match fordelt på emner";
+    wrap.appendChild(heading);
+
+    if (!Array.isArray(topicScores) || !topicScores.length) {
+      const none = document.createElement("div");
+      none.className = "muted small";
+      none.style.marginTop = "6px";
+      none.textContent = "Ingen emner med sammenlignelige svar.";
+      wrap.appendChild(none);
+      return wrap;
+    }
+
+    const list = document.createElement("div");
+    list.className = "topic-score-list";
+
+    topicScores.forEach(item => {
+      const chip = document.createElement("div");
+      chip.className = "topic-score-chip";
+      chip.textContent = `${item.topic}: ${item.pct}% (${item.compared})`;
+      list.appendChild(chip);
+    });
+
+    wrap.appendChild(list);
     return wrap;
   }
 
