@@ -6,12 +6,18 @@
     throw new Error("QUIZ_DATA mangler eller er ugyldigt. Tjek questions.js");
   }
 
+  const MUNICIPALITIES = [
+    "Albertslund", "Allerød", "Assens", "Ballerup", "Billund", "Bornholm", "Brøndby", "Brønderslev", "Dragør", "Egedal", "Esbjerg", "Fanø", "Favrskov", "Faxe", "Fredensborg", "Fredericia", "Frederiksberg", "Frederikshavn", "Frederikssund", "Furesø", "Faaborg-Midtfyn", "Gentofte", "Gladsaxe", "Glostrup", "Greve", "Gribskov", "Guldborgsund", "Haderslev", "Halsnæs", "Hedensted", "Helsingør", "Herlev", "Herning", "Hillerød", "Hjørring", "Holbæk", "Holstebro", "Horsens", "Hvidovre", "Høje-Taastrup", "Hørsholm", "Ikast-Brande", "Ishøj", "Jammerbugt", "Kalundborg", "Kerteminde", "Kolding", "København", "Køge", "Langeland", "Lejre", "Lemvig", "Lolland", "Lyngby-Taarbæk", "Læsø", "Mariagerfjord", "Middelfart", "Morsø", "Norddjurs", "Nordfyns", "Nyborg", "Næstved", "Odder", "Odense", "Odsherred", "Randers", "Rebild", "Ringkøbing-Skjern", "Ringsted", "Roskilde", "Rudersdal", "Rødovre", "Samsø", "Silkeborg", "Skanderborg", "Skive", "Slagelse", "Solrød", "Sorø", "Stevns", "Struer", "Svendborg", "Syddjurs", "Sønderborg", "Thisted", "Tårnby", "Tønder", "Vallensbæk", "Varde", "Vejen", "Vejle", "Vesthimmerlands", "Viborg", "Vordingborg", "Ærø", "Aabenraa", "Aalborg", "Aarhus"
+  ];
+
   const els = {
     start: document.getElementById("screen-start"),
     quiz: document.getElementById("screen-quiz"),
     result: document.getElementById("screen-result"),
 
     areaInput: document.getElementById("areaInput"),
+    areaError: document.getElementById("areaError"),
+    municipalityList: document.getElementById("municipalityList"),
     toggleExplain: document.getElementById("toggleExplain"),
     btnStart: document.getElementById("btnStart"),
     btnReset: document.getElementById("btnReset"),
@@ -203,6 +209,38 @@
     showScreen("start");
     els.areaInput.value = state.area;
     els.toggleExplain.checked = state.showExplain;
+    validateArea(false);
+  }
+
+  function normalizeMunicipalityName(s) {
+    return (s || "").trim().toLocaleLowerCase("da-DK");
+  }
+
+  function isValidMunicipality(value) {
+    const normalized = normalizeMunicipalityName(value);
+    return MUNICIPALITIES.some(item => normalizeMunicipalityName(item) === normalized);
+  }
+
+  function validateArea(showError = true) {
+    const isValid = isValidMunicipality(els.areaInput.value);
+
+    els.btnStart.disabled = !isValid;
+    if (!isValid && showError) {
+      els.areaError.classList.remove("hidden");
+    } else {
+      els.areaError.classList.add("hidden");
+    }
+
+    return isValid;
+  }
+
+  function populateMunicipalityList() {
+    els.municipalityList.innerHTML = "";
+    MUNICIPALITIES.forEach(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      els.municipalityList.appendChild(option);
+    });
   }
 
   function renderQuiz() {
@@ -480,7 +518,13 @@
   }
 
   function startQuiz() {
-    state.area = els.areaInput.value.trim();
+    if (!validateArea(true)) {
+      return;
+    }
+
+    state.area = MUNICIPALITIES.find(
+      item => normalizeMunicipalityName(item) === normalizeMunicipalityName(els.areaInput.value)
+    ) || "";
     state.showExplain = els.toggleExplain.checked;
     save();
     renderQuiz();
@@ -626,11 +670,25 @@
       state.showExplain = els.toggleExplain.checked;
       save();
     });
+
+    els.areaInput.addEventListener("input", () => {
+      validateArea(false);
+    });
+
+    els.areaInput.addEventListener("blur", () => {
+      validateArea(true);
+    });
   }
 
   async function init() {
     data.candidates = await loadCandidatesFromSpreadsheet();
+    populateMunicipalityList();
     load();
+
+    if (!isValidMunicipality(state.area)) {
+      state.area = "";
+    }
+
     bind();
 
     if (!tryLoadShare()) {
