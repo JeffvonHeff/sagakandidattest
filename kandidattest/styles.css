@@ -180,6 +180,14 @@ input:focus, select:focus, button:focus{
   background: #fff;
 }
 
+
+.weight-picker{
+  margin-top: 14px;
+}
+
+.input-select{
+  max-width: 320px;
+}
 /* Progress */
 .progress{
   min-width: 260px;
