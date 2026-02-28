@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kandidattest skabelon</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#app">Spring til indhold</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <h1>Kandidattest</h1>
+      <p class="muted">Svar på udsagn og se hvilke kandidater du matcher bedst.</p>
+    </div>
+  </header>
+
+  <main id="app" class="wrap" aria-live="polite">
+    <section id="screen-start" class="card">
+      <h2>Start</h2>
+      <p class="muted">
+        Skabelon. Du kan udskifte tekst, spørgsmål og kandidater senere.
+      </p>
+
+      <div class="grid">
+        <label class="field">
+          <span>Kommune eller område (valgfrit)</span>
+          <input id="areaInput" type="text" autocomplete="off" placeholder="Fx København" />
+        </label>
+
+        <label class="field">
+          <span>Vis forklaringer efter hvert spørgsmål</span>
+          <input id="toggleExplain" type="checkbox" />
+        </label>
+      </div>
+
+      <button id="btnStart" class="btn primary">Start testen</button>
+      <button id="btnReset" class="btn">Nulstil</button>
+
+      <details class="details">
+        <summary>Metode og transparens</summary>
+        <p>
+          Match beregnes som afstand mellem dine svar og kandidaters svar på samme udsagn.
+          Du kan vælge at vægte spørgsmål. Se app.js for beregning.
+        </p>
+      </details>
+    </section>
+
+    <section id="screen-quiz" class="card hidden">
+      <div class="row space">
+        <div>
+          <h2 id="qTitle">Spørgsmål</h2>
+          <p id="qMeta" class="muted"></p>
+        </div>
+        <div class="progress" aria-label="Fremdrift">
+          <div class="bar"><div id="barFill" class="fill"></div></div>
+          <div id="barText" class="muted small"></div>
+        </div>
+      </div>
+
+      <div id="qText" class="statement" role="group" aria-label="Udsagn"></div>
+
+      <div class="answers" role="group" aria-label="Svarmuligheder">
+        <button class="btn ans" data-value="2">Helt enig</button>
+        <button class="btn ans" data-value="1">Delvist enig</button>
+        <button class="btn ans" data-value="0">Neutral</button>
+        <button class="btn ans" data-value="-1">Delvist uenig</button>
+        <button class="btn ans" data-value="-2">Helt uenig</button>
+      </div>
+
+      <div class="grid">
+        <label class="field">
+          <span>Vægt dette spørgsmål</span>
+          <select id="weightSelect">
+            <option value="1">Normal</option>
+            <option value="2">Vigtigt</option>
+            <option value="3">Meget vigtigt</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Spring over (ingen data)</span>
+          <button id="btnSkip" class="btn">Spring over</button>
+        </label>
+      </div>
+
+      <div id="explainBox" class="explain hidden" aria-label="Forklaring">
+        <h3>Forklaring</h3>
+        <p id="qExplain" class="muted"></p>
+      </div>
+
+      <div class="row space">
+      <div class="row">
+          <button id="btnBack" class="btn">Tilbage</button>
+          <button id="btnStartOver" class="btn">Start helt forfra</button>
+        </div>
+        <button id="btnFinish" class="btn primary hidden">Se resultat</button>
+      </div>
+    </section>
+
+    <section id="screen-result" class="card hidden">
+      <h2>Dit resultat</h2>
+      <p id="resultMeta" class="muted"></p>
+
+
+      <div class="row space">
+        <button id="btnShare" class="btn">Kopiér resultat link</button>
+        <div class="row">
+          <button id="btnRestart" class="btn primary">Tag testen igen</button>
+          <button id="btnRestartToStart" class="btn">Start helt forfra</button>
+        </div>
+      </div>
+
+      <div id="resultList" class="results" aria-label="Resultatliste"></div>
+
+      <details class="details">
+        <summary>Hvordan beregnes match</summary>
+        <p class="muted">
+          Hvert svar mappes til en skala fra minus 2 til 2. Kandidaters svar ligger på samme skala.
+          For hvert udsagn beregnes en afvigelse. Mindre afvigelse giver højere match.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap muted small">
+      Skabelon til kandidattest. Tilpas frit.
+    </div>
+  </footer>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
