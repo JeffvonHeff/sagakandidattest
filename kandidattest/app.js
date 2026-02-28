@@ -2,7 +2,7 @@
   "use strict";
 
   const data = window.QUIZ_DATA;
-  if (!data || !Array.isArray(data.questions) || !Array.isArray(data.candidates)) {
+  if (!data || !Array.isArray(data.questions)) {
     throw new Error("QUIZ_DATA mangler eller er ugyldigt. Tjek questions.js");
   }
 
@@ -47,6 +47,97 @@
   };
 
   const STORAGE_KEY = `kandidattest:${data.quizId}`;
+
+  async function loadCandidatesFromSpreadsheet() {
+    const response = await fetch("./data/kandidat_svar.csv", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Kunne ikke hente spreadsheet: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+    const rows = parseCsv(csvText);
+    if (!rows.length) return [];
+
+    return rows.map(row => {
+      const candidate = {
+        id: row.id || "",
+        name: row.name || "Ukendt kandidat",
+        party: row.party || "",
+        area: row.area || "",
+        answers: {}
+      };
+
+      for (const q of data.questions) {
+        const raw = row[q.id];
+        if (raw === undefined || raw === null || raw === "") {
+          candidate.answers[q.id] = null;
+          continue;
+        }
+
+        const n = Number(raw);
+        candidate.answers[q.id] = Number.isFinite(n) ? n : null;
+      }
+
+      return candidate;
+    });
+  }
+
+  function parseCsv(text) {
+    const lines = text
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    if (!lines.length) return [];
+
+    const headers = splitCsvLine(lines[0]);
+    const out = [];
+
+    for (let i = 1; i < lines.length; i += 1) {
+      const cells = splitCsvLine(lines[i]);
+      const row = {};
+
+      headers.forEach((h, idx) => {
+        row[h] = cells[idx] !== undefined ? cells[idx] : "";
+      });
+
+      out.push(row);
+    }
+
+    return out;
+  }
+
+  function splitCsvLine(line) {
+    const cells = [];
+    let cur = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i += 1) {
+      const ch = line[i];
+
+      if (ch === '"') {
+        const next = line[i + 1];
+        if (inQuotes && next === '"') {
+          cur += '"';
+          i += 1;
+        } else {
+          inQuotes = !inQuotes;
+        }
+        continue;
+      }
+
+      if (ch === "," && !inQuotes) {
+        cells.push(cur);
+        cur = "";
+        continue;
+      }
+
+      cur += ch;
+    }
+
+    cells.push(cur);
+    return cells.map(x => x.trim());
+  }
 
   function load() {
     try {
@@ -445,10 +536,18 @@
     });
   }
 
-  load();
-  bind();
+  async function init() {
+    data.candidates = await loadCandidatesFromSpreadsheet();
+    load();
+    bind();
 
-  if (!tryLoadShare()) {
-    renderStart();
+    if (!tryLoadShare()) {
+      renderStart();
+    }
   }
+
+  init().catch(err => {
+    console.error(err);
+    alert("Kunne ikke indlæse kandidatsvar fra spreadsheet.");
+  });
 })();
