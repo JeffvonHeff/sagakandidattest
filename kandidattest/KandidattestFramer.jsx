@@ -66,14 +66,6 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
     }
   }
 
-  const setWeight = (weight) => {
-    if (!question) return
-    const response = responses[question.id] || { value: null, weight: question.defaultWeight || 1 }
-    setResponses({
-      ...responses,
-      [question.id]: { ...response, weight: clampInt(weight, 1, 3) },
-    })
-  }
 
   const skipCurrent = () => answerCurrent(null)
 
@@ -115,16 +107,6 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
           <h3 style={s.statement}>{question.text}</h3>
           {showExplain && !!question.explain && <p style={s.explain}>{question.explain}</p>}
 
-          <label style={s.label}>Hvor vigtigt er dette udsagn?</label>
-          <select
-            style={s.input}
-            value={(responses[question.id]?.weight || question.defaultWeight || 1).toString()}
-            onChange={(e) => setWeight(Number(e.target.value))}
-          >
-            <option value="1">Normal vægt</option>
-            <option value="2">Vigtigt</option>
-            <option value="3">Meget vigtigt</option>
-          </select>
 
           <div style={s.grid}>
             {[

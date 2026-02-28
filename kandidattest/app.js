@@ -25,7 +25,6 @@
     barFill: document.getElementById("barFill"),
     barText: document.getElementById("barText"),
 
-    weightSelect: document.getElementById("weightSelect"),
     btnSkip: document.getElementById("btnSkip"),
     btnBack: document.getElementById("btnBack"),
     btnFinish: document.getElementById("btnFinish"),
@@ -223,8 +222,6 @@
 
     els.qExplain.textContent = q.explain || "";
     els.explainBox.classList.toggle("hidden", !(state.showExplain && q.explain));
-
-    els.weightSelect.value = String(clampInt(r.weight, 1, 3));
 
     const pct = Math.round(((state.step) / data.questions.length) * 100);
     els.barFill.style.width = `${pct}%`;
@@ -495,7 +492,7 @@
 
     const r = ensureResponse(q);
     r.value = Number(value);
-    r.weight = clampInt(els.weightSelect.value, 1, 3);
+    r.weight = clampInt(q.defaultWeight || 1, 1, 3);
     state.responses[q.id] = r;
 
     if (state.step < data.questions.length - 1) {
@@ -515,7 +512,7 @@
 
     const r = ensureResponse(q);
     r.value = null;
-    r.weight = clampInt(els.weightSelect.value, 1, 3);
+    r.weight = clampInt(q.defaultWeight || 1, 1, 3);
     state.responses[q.id] = r;
 
     if (state.step < data.questions.length - 1) {
