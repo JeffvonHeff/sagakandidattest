@@ -288,7 +288,7 @@ const s = {
   meta: { color: "#666", fontSize: 14 },
   statement: { margin: 0 },
   explain: { margin: 0, background: "#fff7bf", border: "1px solid #f1e07a", borderRadius: 10, padding: 10 },
-  grid: { display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))" },
+  grid: { display: "grid", gap: 8, gridTemplateColumns: "repeat(5, minmax(0, 1fr))" },
   answer: { border: "1px solid #ddd", borderRadius: 10, padding: "10px 12px", background: "white", cursor: "pointer" },
   results: { display: "grid", gap: 8 },
   resultItem: { border: "1px solid #e7e7e7", borderRadius: 12, padding: 12 },
