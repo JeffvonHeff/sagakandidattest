@@ -187,10 +187,9 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
             ))}
           </div>
 
-          <div style={s.row}>
-            <button style={s.secondary} onClick={skipCurrent}>Spring over</button>
+          <div style={s.quizActions}>
             <button style={s.secondary} onClick={() => setStep(Math.max(0, step - 1))}>Tilbage</button>
-            <button style={s.secondary} onClick={() => setScreen("result")}>Se resultat</button>
+            <button style={{ ...s.secondary, marginLeft: "auto" }} onClick={skipCurrent}>Spring over</button>
           </div>
         </section>
       )}
@@ -405,6 +404,7 @@ const s = {
   weightRange: { width: "100%" },
   weightLabels: { display: "flex", justifyContent: "space-between", fontSize: 12, color: "#666", gap: 8 },
   grid: { display: "grid", gap: 8, gridTemplateColumns: "repeat(5, minmax(0, 1fr))" },
+  quizActions: { display: "flex", gap: 8, marginTop: 18 },
   answer: { border: "1px solid #ddd", borderRadius: 10, padding: "10px 12px", background: "white", cursor: "pointer" },
   results: { display: "grid", gap: 8 },
   resultItem: { border: "1px solid #e7e7e7", borderRadius: 12, padding: 12 },
