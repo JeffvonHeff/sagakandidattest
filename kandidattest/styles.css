@@ -192,8 +192,47 @@ input:focus, select:focus, button:focus{
 .weight-slider{
   width: 100%;
   padding: 0;
-  accent-color: #111;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
   cursor: ew-resize;
+}
+
+.weight-slider::-webkit-slider-runnable-track{
+  height: 10px;
+  border-radius: 999px;
+  background: #111;
+}
+
+.weight-slider::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -4px;
+  border-radius: 50%;
+  border: 2px solid #111;
+  background: #fff;
+}
+
+.weight-slider::-moz-range-track{
+  height: 10px;
+  border-radius: 999px;
+  background: #111;
+}
+
+.weight-slider::-moz-range-progress{
+  height: 10px;
+  border-radius: 999px;
+  background: #111;
+}
+
+.weight-slider::-moz-range-thumb{
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #111;
+  background: #fff;
 }
 
 .weight-labels{

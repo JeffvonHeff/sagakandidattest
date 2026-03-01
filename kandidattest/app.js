@@ -198,10 +198,10 @@
 
   function ensureResponse(q) {
     if (!state.responses[q.id]) {
-      state.responses[q.id] = { value: null, weight: q.defaultWeight || 1 };
+      state.responses[q.id] = { value: null, weight: q.defaultWeight || 2 };
     }
     const r = state.responses[q.id];
-    if (typeof r.weight !== "number") r.weight = 1;
+    if (typeof r.weight !== "number") r.weight = 2;
     if (r.value !== null && typeof r.value !== "number") r.value = null;
     return r;
   }
@@ -540,7 +540,7 @@
 
     const r = ensureResponse(q);
     r.value = Number(value);
-    r.weight = clampInt(r.weight || q.defaultWeight || 1, 1, 3);
+    r.weight = clampInt(r.weight || q.defaultWeight || 2, 1, 3);
     state.responses[q.id] = r;
 
     if (state.step < data.questions.length - 1) {
@@ -560,7 +560,7 @@
 
     const r = ensureResponse(q);
     r.value = null;
-    r.weight = clampInt(r.weight || q.defaultWeight || 1, 1, 3);
+    r.weight = clampInt(r.weight || q.defaultWeight || 2, 1, 3);
     state.responses[q.id] = r;
 
     if (state.step < data.questions.length - 1) {
