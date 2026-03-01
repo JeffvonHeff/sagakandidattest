@@ -65,13 +65,28 @@
 
       <div class="weight-picker" role="group" aria-label="Vigtighed af spørgsmålet">
         <label class="field" for="qWeight">
-          <span>Hvor vigtigt er dette spørgsmål for dig?</span>
-          <select id="qWeight" class="input-select">
-            <option value="1">Mindre vigtigt</option>
-            <option value="2">Vigtigt</option>
-            <option value="3">Meget vigtigt</option>
-          </select>
+          <span>Skal dette spørgsmål vægte ekstra?</span>
         </label>
+        <div class="weight-slider-wrap">
+          <input
+            id="qWeight"
+            class="weight-slider"
+            type="range"
+            min="1"
+            max="3"
+            step="1"
+            value="2"
+            aria-valuemin="1"
+            aria-valuemax="3"
+            aria-valuenow="2"
+            aria-label="Vægtning: Nej, Både og, Ja"
+          />
+          <div class="weight-labels" aria-hidden="true">
+            <span>Nej</span>
+            <span>Både og</span>
+            <span>Ja</span>
+          </div>
+        </div>
       </div>
 
       <div class="answers" role="group" aria-label="Svarmuligheder">
