@@ -66,6 +66,25 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
     }
   }
 
+  const updateCurrentWeight = (value) => {
+    if (!question) return
+
+    const response = responses[question.id] || { value: null, weight: question.defaultWeight || 1 }
+    setResponses({
+      ...responses,
+      [question.id]: {
+        ...response,
+        weight: clampInt(value, 1, 3),
+      },
+    })
+  }
+
+  const currentWeight = clampInt(
+    responses[question?.id]?.weight ?? question?.defaultWeight ?? 1,
+    1,
+    3
+  )
+
 
   const skipCurrent = () => answerCurrent(null)
 
@@ -106,6 +125,24 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
           <div style={s.meta}>Udsagn {step + 1} / {QUESTIONS.length} · {question.topic}</div>
           <h3 style={s.statement}>{question.text}</h3>
           {showExplain && !!question.explain && <p style={s.explain}>{question.explain}</p>}
+
+          <div style={s.weightWrap}>
+            <div style={s.meta}>Hvor vigtigt er dette spørgsmål?</div>
+            <input
+              type="range"
+              min={1}
+              max={3}
+              step={1}
+              value={currentWeight}
+              onChange={(e) => updateCurrentWeight(e.target.value)}
+              style={s.weightRange}
+            />
+            <div style={s.weightLabels}>
+              <span>Mindre vigtigt</span>
+              <strong>Vægt: {currentWeight}</strong>
+              <span>Mest vigtigt</span>
+            </div>
+          </div>
 
 
           <div style={s.grid}>
@@ -288,6 +325,9 @@ const s = {
   meta: { color: "#666", fontSize: 14 },
   statement: { margin: 0 },
   explain: { margin: 0, background: "#fff7bf", border: "1px solid #f1e07a", borderRadius: 10, padding: 10 },
+  weightWrap: { display: "grid", gap: 6 },
+  weightRange: { width: "100%" },
+  weightLabels: { display: "flex", justifyContent: "space-between", fontSize: 12, color: "#666", gap: 8 },
   grid: { display: "grid", gap: 8, gridTemplateColumns: "repeat(5, minmax(0, 1fr))" },
   answer: { border: "1px solid #ddd", borderRadius: 10, padding: "10px 12px", background: "white", cursor: "pointer" },
   results: { display: "grid", gap: 8 },
