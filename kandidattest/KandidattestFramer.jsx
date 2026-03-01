@@ -29,6 +29,11 @@ const QUESTIONS = [
   { id: "q25", topic: "Demokrati", text: "Kommunen skal gøre det nemmere at forstå politiske beslutninger.", explain: "Klar og enkel kommunikation.", defaultWeight: 1 },
 ]
 
+
+const MUNICIPALITIES = [
+  "Albertslund", "Allerød", "Assens", "Ballerup", "Billund", "Bornholm", "Brøndby", "Brønderslev", "Christiansø", "Dragør", "Egedal", "Esbjerg", "Fanø", "Favrskov", "Faxe", "Fredensborg", "Fredericia", "Frederiksberg", "Frederikshavn", "Frederikssund", "Furesø", "Faaborg-Midtfyn", "Gentofte", "Gladsaxe", "Glostrup", "Greve", "Gribskov", "Guldborgsund", "Haderslev", "Halsnæs", "Hedensted", "Helsingør", "Herlev", "Herning", "Hillerød", "Hjørring", "Holbæk", "Holstebro", "Horsens", "Hvidovre", "Høje-Taastrup", "Hørsholm", "Ikast-Brande", "Ishøj", "Jammerbugt", "Kalundborg", "Kerteminde", "Kolding", "København", "Køge", "Langeland", "Lejre", "Lemvig", "Lolland", "Lyngby-Taarbæk", "Læsø", "Mariagerfjord", "Middelfart", "Morsø", "Norddjurs", "Nordfyns", "Nyborg", "Næstved", "Odder", "Odense", "Odsherred", "Randers", "Rebild", "Ringkøbing-Skjern", "Ringsted", "Roskilde", "Rudersdal", "Rødovre", "Samsø", "Silkeborg", "Skanderborg", "Skive", "Slagelse", "Solrød", "Sorø", "Stevns", "Struer", "Svendborg", "Syddjurs", "Sønderborg", "Thisted", "Tønder", "Tårnby", "Vallensbæk", "Varde", "Vejen", "Vejle", "Vesthimmerlands", "Viborg", "Vordingborg", "Ærø", "Aabenraa", "Aalborg", "Aarhus"
+]
+
 const DEFAULT_CSV = `id,name,party,area,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20,q21,q22,q23,q24,q25
 c1,Kandidat A,Parti X,København,2,2,1,1,2,2,2,1,2,1,1,2,2,1,2,1,2,0,1,1,2,1,2,2,2
 c2,Kandidat B,Parti Y,København,0,1,0,-1,1,0,1,0,1,2,0,0,1,1,0,0,1,2,0,2,0,-1,1,1,1
@@ -44,7 +49,14 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
   const candidates = React.useMemo(() => parseCandidates(csvData), [csvData])
   const question = QUESTIONS[step]
 
+  const municipalityOptions = React.useMemo(() => {
+    return [...new Set(MUNICIPALITIES)].sort((a, b) => a.localeCompare(b, "da"))
+  }, [])
+
+  const isAreaValid = municipalityOptions.includes(area.trim())
+
   const startQuiz = () => {
+    if (!isAreaValid) return
     setStep(0)
     setScreen("quiz")
   }
@@ -108,14 +120,28 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
 
       {screen === "start" && (
         <section style={s.card}>
-          <label style={s.label}>Område (valgfrit)</label>
-          <input value={area} onChange={(e) => setArea(e.target.value)} placeholder="fx København" style={s.input} />
+          <label style={s.label}>Kommune (påkrævet)</label>
+          <input
+            list="municipality-list"
+            value={area}
+            onChange={(e) => setArea(e.target.value)}
+            placeholder="Vælg kommune"
+            style={s.input}
+          />
+          <datalist id="municipality-list">
+            {municipalityOptions.map((municipality) => (
+              <option key={municipality} value={municipality} />
+            ))}
+          </datalist>
+          {!isAreaValid && area.trim() !== "" && (
+            <div style={s.error}>Vælg en kommune fra listen for at starte testen.</div>
+          )}
           <label style={s.checkRow}>
             <input type="checkbox" checked={showExplain} onChange={(e) => setShowExplain(e.target.checked)} />
             Vis forklaringer til udsagn
           </label>
           <div style={s.row}>
-            <button style={s.primary} onClick={startQuiz}>Start test</button>
+            <button style={s.primary} onClick={startQuiz} disabled={!isAreaValid}>Start test</button>
             <button style={s.secondary} onClick={resetAll}>Nulstil</button>
           </div>
         </section>
@@ -262,7 +288,7 @@ function clampInt(v, min, max) {
 function filterCandidatesByArea(candidates, area) {
   const normalized = (area || "").trim().toLowerCase()
   if (!normalized) return candidates
-  return candidates.filter((c) => (c.area || "").toLowerCase().includes(normalized))
+  return candidates.filter((c) => (c.area || "").trim().toLowerCase() === normalized)
 }
 
 function scoreAllCandidates(candidates, responses) {
@@ -368,6 +394,7 @@ const s = {
   checkRow: { display: "flex", gap: 8, alignItems: "center", fontSize: 14 },
   row: { display: "flex", gap: 8, flexWrap: "wrap" },
   primary: { background: "#111", color: "white", border: 0, borderRadius: 10, padding: "10px 12px", cursor: "pointer" },
+  error: { color: "#9f1d1d", fontSize: 13 },
   secondary: { background: "#f3f3f3", color: "#111", border: "1px solid #ddd", borderRadius: 10, padding: "10px 12px", cursor: "pointer" },
   meta: { color: "#666", fontSize: 14 },
   statement: { margin: 0 },
