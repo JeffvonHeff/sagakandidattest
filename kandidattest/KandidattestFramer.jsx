@@ -141,7 +141,9 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
             Vis forklaringer til udsagn
           </label>
           <div style={s.row}>
-            <button style={s.primary} onClick={startQuiz} disabled={!isAreaValid}>Start test</button>
+            {isAreaValid && (
+              <button style={s.primary} onClick={startQuiz}>Start test</button>
+            )}
             <button style={s.secondary} onClick={resetAll}>Nulstil</button>
           </div>
         </section>
@@ -154,7 +156,7 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
           {showExplain && !!question.explain && <p style={s.explain}>{question.explain}</p>}
 
           <div style={s.weightWrap}>
-            <div style={s.meta}>Hvor vigtigt er dette spørgsmål?</div>
+            <div style={s.meta}>Er dette udsagn vigtigt for dig?</div>
             <input
               className="weight-range"
               type="range"
