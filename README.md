@@ -1,6 +1,20 @@
 # sagakandidattest
 Kandidattest
 
+## Gemning af brugersvar i ekstern CSV
+
+Når en kandidat har gennemført testen, bliver svarene sendt til backend-endpointet
+`POST /api/submissions` og gemt i den eksterne CSV-fil
+`kandidattest/data/test_besvarelser.csv`.
+
+Start applikationen via Node-serveren for at aktivere gemning:
+
+```bash
+node server.js
+```
+
+Serveren hoster både frontend (`kandidattest/`) og API til CSV-gemning.
+
 ## Kandidatdata fra spreadsheet
 
 Kandidaternes svar ligger i `kandidattest/data/kandidat_svar.csv`.

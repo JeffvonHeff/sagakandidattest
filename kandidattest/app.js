@@ -50,6 +50,8 @@
     area: "",
     showExplain: false,
     responses: {},  // { qid: { value: number|null, weight: number } }
+    hasSavedSubmission: false,
+    isSharedResultView: false
   };
 
   const STORAGE_KEY = `kandidattest:${data.quizId}`;
@@ -156,6 +158,7 @@
       state.area = typeof saved.area === "string" ? saved.area : "";
       state.showExplain = !!saved.showExplain;
       state.responses = saved.responses && typeof saved.responses === "object" ? saved.responses : {};
+      state.hasSavedSubmission = !!saved.hasSavedSubmission;
     } catch {
       // Ignorer corrupt storage
     }
@@ -166,7 +169,8 @@
       step: state.step,
       area: state.area,
       showExplain: state.showExplain,
-      responses: state.responses
+      responses: state.responses,
+      hasSavedSubmission: state.hasSavedSubmission
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   }
@@ -177,7 +181,53 @@
     state.area = "";
     state.showExplain = false;
     state.responses = {};
+    state.hasSavedSubmission = false;
+    state.isSharedResultView = false;
     renderStart();
+  }
+
+  function buildSubmissionPayload() {
+    const payload = {
+      submitted_at: new Date().toISOString(),
+      area: state.area,
+      answered_count: Object.values(state.responses).filter(x => x && x.value !== null).length,
+      total_questions: data.questions.length
+    };
+
+    for (const q of data.questions) {
+      const r = state.responses[q.id];
+      payload[`${q.id}_answer`] = r && r.value !== null ? r.value : "";
+      payload[`${q.id}_weight`] = r ? clampInt(r.weight, 1, 3) : "";
+    }
+
+    return payload;
+  }
+
+  async function saveSubmissionToExternalCsv() {
+    const payload = buildSubmissionPayload();
+    const response = await fetch("/api/submissions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const txt = await response.text();
+      throw new Error(txt || `Kunne ikke gemme besvarelse (${response.status})`);
+    }
+  }
+
+  function queueSubmissionSave() {
+    if (state.hasSavedSubmission || state.isSharedResultView || state.step < data.questions.length) return;
+
+    saveSubmissionToExternalCsv()
+      .then(() => {
+        state.hasSavedSubmission = true;
+        save();
+      })
+      .catch(err => {
+        console.error("Kunne ikke gemme testsvar i ekstern CSV", err);
+      });
   }
 
   function clampInt(v, min, max) {
@@ -274,6 +324,7 @@
 
   function renderResult() {
     showScreen("result");
+    queueSubmissionSave();
     const answered = Object.values(state.responses).filter(x => x && x.value !== null).length;
 
     els.resultMeta.textContent = `Du har svaret på ${answered} af ${data.questions.length} udsagn.`;
@@ -594,6 +645,8 @@
 
   function restart() {
     state.step = 0;
+    state.hasSavedSubmission = false;
+    state.isSharedResultView = false;
     save();
     renderQuiz();
   }
@@ -603,6 +656,8 @@
   state.step = 0;
   state.area = "";
   state.responses = {};
+  state.hasSavedSubmission = false;
+  state.isSharedResultView = false;
 
   // Du kan vælge at beholde showExplain eller nulstille den
   // Jeg nulstiller den, så startskærmen er ren
@@ -648,6 +703,8 @@
 
       state.area = typeof parsed.a === "string" ? parsed.a : "";
       state.responses = {};
+      state.hasSavedSubmission = true;
+      state.isSharedResultView = true;
       if (parsed.r && typeof parsed.r === "object") {
         for (const [qid, arr] of Object.entries(parsed.r)) {
           const v = Array.isArray(arr) ? Number(arr[0]) : null;
