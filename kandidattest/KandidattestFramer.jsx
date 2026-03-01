@@ -387,9 +387,9 @@ const rangeStyles = `
 `
 
 const s = {
-  root: { fontFamily: "Inter, system-ui, sans-serif", color: "#111", background: "#f2d200", minHeight: "100%", padding: 16 },
+  root: { fontFamily: "Inter, system-ui, sans-serif", color: "#111", background: "#f2d200", minHeight: "100%", padding: 16, width: "100%", maxWidth: 560 },
   title: { marginTop: 0 },
-  card: { background: "white", borderRadius: 16, padding: 16, display: "grid", gap: 12 },
+  card: { background: "white", borderRadius: 16, padding: 16, display: "grid", gap: 12, width: "100%" },
   label: { fontSize: 14, color: "#555" },
   input: { padding: "10px 12px", borderRadius: 10, border: "1px solid #ddd" },
   checkRow: { display: "flex", gap: 8, alignItems: "center", fontSize: 14 },
