@@ -52,7 +52,7 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
   const answerCurrent = (value) => {
     if (!question) return
 
-    const response = responses[question.id] || { value: null, weight: question.defaultWeight || 1 }
+    const response = responses[question.id] || { value: null, weight: 2 }
     const nextResponses = {
       ...responses,
       [question.id]: { ...response, value },
@@ -69,7 +69,7 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
   const updateCurrentWeight = (value) => {
     if (!question) return
 
-    const response = responses[question.id] || { value: null, weight: question.defaultWeight || 1 }
+    const response = responses[question.id] || { value: null, weight: 2 }
     setResponses({
       ...responses,
       [question.id]: {
@@ -80,7 +80,7 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
   }
 
   const currentWeight = clampInt(
-    responses[question?.id]?.weight ?? question?.defaultWeight ?? 1,
+    responses[question?.id]?.weight ?? 2,
     1,
     3
   )
@@ -103,6 +103,7 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
 
   return (
     <div style={s.root}>
+      <style>{rangeStyles}</style>
       <h2 style={s.title}>{title}</h2>
 
       {screen === "start" && (
@@ -129,6 +130,7 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
           <div style={s.weightWrap}>
             <div style={s.meta}>Hvor vigtigt er dette spørgsmål?</div>
             <input
+              className="weight-range"
               type="range"
               min={1}
               max={3}
@@ -138,9 +140,9 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
               style={s.weightRange}
             />
             <div style={s.weightLabels}>
-              <span>Mindre vigtigt</span>
-              <strong>Vægt: {currentWeight}</strong>
-              <span>Mest vigtigt</span>
+              <span>Nej</span>
+              <strong>Både og</strong>
+              <span>Ja</span>
             </div>
           </div>
 
@@ -311,6 +313,51 @@ function weightedCenteredCosine(rows) {
   const denominator = Math.sqrt(userNormSq) * Math.sqrt(candidateNormSq)
   return denominator ? numerator / denominator : 0
 }
+
+const rangeStyles = `
+  .weight-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: #111;
+    outline: none;
+  }
+
+  .weight-range::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 999px;
+    background: #111;
+  }
+
+  .weight-range::-moz-range-track {
+    height: 8px;
+    border-radius: 999px;
+    background: #111;
+  }
+
+  .weight-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 2px solid #111;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .weight-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 2px solid #111;
+    background: #fff;
+    cursor: pointer;
+  }
+`
 
 const s = {
   root: { fontFamily: "Inter, system-ui, sans-serif", color: "#111", background: "#f2d200", minHeight: "100%", padding: 16 },
