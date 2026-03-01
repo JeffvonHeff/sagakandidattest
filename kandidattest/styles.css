@@ -185,8 +185,23 @@ input:focus, select:focus, button:focus{
   margin-top: 14px;
 }
 
-.input-select{
-  max-width: 320px;
+.weight-slider-wrap{
+  max-width: 380px;
+}
+
+.weight-slider{
+  width: 100%;
+  padding: 0;
+  accent-color: #111;
+  cursor: ew-resize;
+}
+
+.weight-labels{
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: .9rem;
 }
 /* Progress */
 .progress{
