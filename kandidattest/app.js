@@ -25,6 +25,9 @@
     qTitle: document.getElementById("qTitle"),
     qMeta: document.getElementById("qMeta"),
     qText: document.getElementById("qText"),
+    answerSlider: document.getElementById("answerSlider"),
+    answerValueLabel: document.getElementById("answerValueLabel"),
+    btnAnswerNext: document.getElementById("btnAnswerNext"),
     qWeight: document.getElementById("qWeight"),
     qExplain: document.getElementById("qExplain"),
     explainBox: document.getElementById("explainBox"),
@@ -258,6 +261,11 @@
     els.qTitle.textContent = `Udsagn ${state.step + 1}`;
     els.qMeta.textContent = q.topic ? `Emne: ${q.topic}` : "";
     els.qText.textContent = q.text;
+    const currentAnswer = typeof r.value === "number" ? clampInt(r.value, -2, 2) : 0;
+    els.answerSlider.value = String(currentAnswer);
+    els.answerSlider.setAttribute("aria-valuenow", String(currentAnswer));
+    els.answerValueLabel.textContent = formatScale(currentAnswer);
+
     const currentWeight = clampInt(r.weight, 1, 3);
     els.qWeight.value = String(currentWeight);
     els.qWeight.setAttribute("aria-valuenow", String(currentWeight));
@@ -668,8 +676,11 @@
     els.btnStart.addEventListener("click", startQuiz);
     els.btnReset.addEventListener("click", resetAll);
 
-    document.querySelectorAll(".ans").forEach(btn => {
-      btn.addEventListener("click", () => answerCurrent(btn.dataset.value));
+    els.btnAnswerNext.addEventListener("click", () => answerCurrent(els.answerSlider.value));
+    els.answerSlider.addEventListener("input", () => {
+      const value = clampInt(els.answerSlider.value, -2, 2);
+      els.answerSlider.setAttribute("aria-valuenow", String(value));
+      els.answerValueLabel.textContent = formatScale(value);
     });
 
     els.btnSkip.addEventListener("click", skipCurrent);

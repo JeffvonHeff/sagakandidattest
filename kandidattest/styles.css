@@ -150,24 +150,31 @@ input:focus, select:focus, button:focus{
 }
 
 /* Answer buttons: light cards with strong hover */
-.answers{
-  display:grid;
-  gap: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+.answer-slider{
   margin: 16px 0;
 }
 
-.btn.ans{
-  background: #fff;
-  color: #111;
-  border: 1px solid var(--border);
-  box-shadow: 0 6px 16px rgba(0,0,0,.06);
-  border-radius: 14px;
+.answer-range{
+  width: 100%;
+  padding: 0;
+  accent-color: #111;
+  cursor: ew-resize;
 }
 
-.btn.ans:hover{
-  background: rgba(242,210,0,.22);
-  border-color: rgba(0,0,0,.30);
+.answer-end-labels{
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+#answerValueLabel{
+  margin-top: 8px;
+}
+
+#btnAnswerNext{
+  margin-top: 12px;
 }
 
 /* Statement box */

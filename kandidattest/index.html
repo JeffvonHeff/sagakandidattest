@@ -89,12 +89,26 @@
         </div>
       </div>
 
-      <div class="answers" role="group" aria-label="Svarmuligheder">
-        <button class="btn ans" data-value="-2">Helt uenig</button>
-        <button class="btn ans" data-value="-1">Delvist uenig</button>
-        <button class="btn ans" data-value="0">Neutral</button>
-        <button class="btn ans" data-value="1">Delvist enig</button>
-        <button class="btn ans" data-value="2">Helt enig</button>
+      <div class="answer-slider" role="group" aria-label="Svarmuligheder">
+        <input
+          id="answerSlider"
+          class="answer-range"
+          type="range"
+          min="-2"
+          max="2"
+          step="1"
+          value="0"
+          aria-valuemin="-2"
+          aria-valuemax="2"
+          aria-valuenow="0"
+          aria-label="Svar fra Helt uenig til Helt enig"
+        />
+        <div class="answer-end-labels" aria-hidden="true">
+          <span>Helt uenig</span>
+          <span>Helt enig</span>
+        </div>
+        <div id="answerValueLabel" class="muted small">Neutral</div>
+        <button id="btnAnswerNext" class="btn primary">Næste</button>
       </div>
 
       <div class="grid">
