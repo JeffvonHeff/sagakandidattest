@@ -1,7 +1,7 @@
 import * as React from "react"
 import { addPropertyControls, ControlType } from "framer"
 
-const QUESTIONS = [
+const FALLBACK_QUESTIONS = [
   { id: "q1", topic: "Klima", text: "Kommunen skal plante flere træer i byen.", explain: "Kort udsagn om grønne områder.", defaultWeight: 1 },
   { id: "q2", topic: "Klima", text: "Nye kommunale bygninger skal være mere energieffektive.", explain: "Handler om energikrav til offentlige bygninger.", defaultWeight: 1 },
   { id: "q3", topic: "Miljø", text: "Der skal være flere affaldssorteringspunkter i boligområder.", explain: "Lettere adgang til sortering.", defaultWeight: 1 },
@@ -29,9 +29,23 @@ const QUESTIONS = [
   { id: "q25", topic: "Demokrati", text: "Kommunen skal gøre det nemmere at forstå politiske beslutninger.", explain: "Klar og enkel kommunikation.", defaultWeight: 1 },
 ]
 
-
 const MUNICIPALITIES = [
-  "Albertslund", "Allerød", "Assens", "Ballerup", "Billund", "Bornholm", "Brøndby", "Brønderslev", "Christiansø", "Dragør", "Egedal", "Esbjerg", "Fanø", "Favrskov", "Faxe", "Fredensborg", "Fredericia", "Frederiksberg", "Frederikshavn", "Frederikssund", "Furesø", "Faaborg-Midtfyn", "Gentofte", "Gladsaxe", "Glostrup", "Greve", "Gribskov", "Guldborgsund", "Haderslev", "Halsnæs", "Hedensted", "Helsingør", "Herlev", "Herning", "Hillerød", "Hjørring", "Holbæk", "Holstebro", "Horsens", "Hvidovre", "Høje-Taastrup", "Hørsholm", "Ikast-Brande", "Ishøj", "Jammerbugt", "Kalundborg", "Kerteminde", "Kolding", "København", "Køge", "Langeland", "Lejre", "Lemvig", "Lolland", "Lyngby-Taarbæk", "Læsø", "Mariagerfjord", "Middelfart", "Morsø", "Norddjurs", "Nordfyns", "Nyborg", "Næstved", "Odder", "Odense", "Odsherred", "Randers", "Rebild", "Ringkøbing-Skjern", "Ringsted", "Roskilde", "Rudersdal", "Rødovre", "Samsø", "Silkeborg", "Skanderborg", "Skive", "Slagelse", "Solrød", "Sorø", "Stevns", "Struer", "Svendborg", "Syddjurs", "Sønderborg", "Thisted", "Tønder", "Tårnby", "Vallensbæk", "Varde", "Vejen", "Vejle", "Vesthimmerlands", "Viborg", "Vordingborg", "Ærø", "Aabenraa", "Aalborg", "Aarhus"
+  "Albertslund","Allerød","Assens","Ballerup","Billund","Bornholm","Brøndby",
+  "Brønderslev","Christiansø","Dragør","Egedal","Esbjerg","Fanø","Favrskov",
+  "Faxe","Fredensborg","Fredericia","Frederiksberg","Frederikshavn",
+  "Frederikssund","Furesø","Faaborg-Midtfyn","Gentofte","Gladsaxe","Glostrup",
+  "Greve","Gribskov","Guldborgsund","Haderslev","Halsnæs","Hedensted",
+  "Helsingør","Herlev","Herning","Hillerød","Hjørring","Holbæk","Holstebro",
+  "Horsens","Hvidovre","Høje-Taastrup","Hørsholm","Ikast-Brande","Ishøj",
+  "Jammerbugt","Kalundborg","Kerteminde","Kolding","København","Køge",
+  "Langeland","Lejre","Lemvig","Lolland","Lyngby-Taarbæk","Læsø",
+  "Mariagerfjord","Middelfart","Morsø","Norddjurs","Nordfyns","Nyborg",
+  "Næstved","Odder","Odense","Odsherred","Randers","Rebild",
+  "Ringkøbing-Skjern","Ringsted","Roskilde","Rudersdal","Rødovre","Samsø",
+  "Silkeborg","Skanderborg","Skive","Slagelse","Solrød","Sorø","Stevns",
+  "Struer","Svendborg","Syddjurs","Sønderborg","Thisted","Tønder","Tårnby",
+  "Vallensbæk","Varde","Vejen","Vejle","Vesthimmerlands","Viborg",
+  "Vordingborg","Ærø","Aabenraa","Aalborg","Aarhus"
 ]
 
 const DEFAULT_CSV = `id,name,party,area,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20,q21,q22,q23,q24,q25
@@ -39,15 +53,50 @@ c1,Kandidat A,Parti X,København,2,2,1,1,2,2,2,1,2,1,1,2,2,1,2,1,2,0,1,1,2,1,2,2
 c2,Kandidat B,Parti Y,København,0,1,0,-1,1,0,1,0,1,2,0,0,1,1,0,0,1,2,0,2,0,-1,1,1,1
 c3,Kandidat C,Parti Z,Aarhus,-1,0,1,2,1,1,1,2,0,-1,2,2,1,0,1,2,1,-1,1,0,2,1,2,2,1`
 
-export default function KandidattestFramer({ title, csvData, showExplanationsByDefault }) {
+export default function KandidattestFramer({ title, supabaseUrl, supabaseAnonKey, csvData, showExplanationsByDefault }) {
   const [screen, setScreen] = React.useState("start")
   const [step, setStep] = React.useState(0)
   const [area, setArea] = React.useState("")
   const [showExplain, setShowExplain] = React.useState(showExplanationsByDefault)
   const [responses, setResponses] = React.useState({})
+  const [questions, setQuestions] = React.useState(FALLBACK_QUESTIONS)
+  const [candidates, setCandidates] = React.useState(() => parseCandidates(csvData, FALLBACK_QUESTIONS))
 
-  const candidates = React.useMemo(() => parseCandidates(csvData), [csvData])
-  const question = QUESTIONS[step]
+  React.useEffect(() => {
+    if (!supabaseUrl || !supabaseAnonKey) return
+    const headers = { apikey: supabaseAnonKey, Authorization: "Bearer " + supabaseAnonKey }
+
+    fetch(supabaseUrl + "/rest/v1/questions?order=sort_order", { headers })
+      .then((r) => r.json())
+      .then((rows) => {
+        if (!Array.isArray(rows) || !rows.length) return
+        const mapped = rows.map((q) => ({
+          id: q.id,
+          topic: q.topic || "",
+          text: q.text,
+          explain: q.explain || "",
+          defaultWeight: q.default_weight || 1,
+        }))
+        setQuestions(mapped)
+      })
+      .catch(() => {})
+
+    fetch(supabaseUrl + "/rest/v1/candidates?select=*,candidate_answers(question_id,value)", { headers })
+      .then((r) => r.json())
+      .then((rows) => {
+        if (!Array.isArray(rows) || !rows.length) return
+        setCandidates(
+          rows.map((c) => {
+            const answers = {}
+            ;(c.candidate_answers || []).forEach((a) => { answers[a.question_id] = a.value })
+            return { id: c.id, name: c.name || "Ukendt", party: c.party || "", area: c.area || "", answers }
+          })
+        )
+      })
+      .catch(() => {})
+  }, [supabaseUrl, supabaseAnonKey])
+
+  const question = questions[step]
 
   const municipalityOptions = React.useMemo(() => {
     return [...new Set(MUNICIPALITIES)].sort((a, b) => a.localeCompare(b, "da"))
@@ -71,7 +120,7 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
     }
     setResponses(nextResponses)
 
-    if (step < QUESTIONS.length - 1) {
+    if (step < questions.length - 1) {
       setStep(step + 1)
     } else {
       setScreen("result")
@@ -102,8 +151,8 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
 
   const results = React.useMemo(() => {
     const filtered = filterCandidatesByArea(candidates, area)
-    return scoreAllCandidates(filtered, responses)
-  }, [candidates, area, responses])
+    return scoreAllCandidates(filtered, responses, questions)
+  }, [candidates, area, responses, questions])
 
   const resetAll = () => {
     setScreen("start")
@@ -151,7 +200,7 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
 
       {screen === "quiz" && question && (
         <section style={s.card}>
-          <div style={s.meta}>Udsagn {step + 1} / {QUESTIONS.length} · {question.topic}</div>
+          <div style={s.meta}>Udsagn {step + 1} / {questions.length} · {question.topic}</div>
           <h3 style={s.statement}>{question.text}</h3>
           {showExplain && !!question.explain && <p style={s.explain}>{question.explain}</p>}
 
@@ -215,11 +264,11 @@ export default function KandidattestFramer({ title, csvData, showExplanationsByD
   )
 }
 
-function parseCandidates(csvText) {
+function parseCandidates(csvText, questions) {
   const rows = parseCsv(csvText)
   return rows.map((row) => {
     const answers = {}
-    for (const q of QUESTIONS) {
+    for (const q of questions) {
       const n = Number(row[q.id])
       answers[q.id] = Number.isFinite(n) ? n : null
     }
@@ -292,11 +341,11 @@ function filterCandidatesByArea(candidates, area) {
   return candidates.filter((c) => (c.area || "").trim().toLowerCase() === normalized)
 }
 
-function scoreAllCandidates(candidates, responses) {
+function scoreAllCandidates(candidates, responses, questions) {
   return candidates
     .map((candidate) => {
       const comparable = []
-      for (const q of QUESTIONS) {
+      for (const q of questions) {
         const user = responses[q.id]
         if (!user || user.value === null || user.value === undefined) continue
         const candidateValue = candidate.answers[q.id]
@@ -413,12 +462,16 @@ const s = {
 
 KandidattestFramer.defaultProps = {
   title: "Kandidattest",
+  supabaseUrl: "",
+  supabaseAnonKey: "",
   csvData: DEFAULT_CSV,
   showExplanationsByDefault: false,
 }
 
 addPropertyControls(KandidattestFramer, {
   title: { type: ControlType.String, title: "Titel" },
+  supabaseUrl: { type: ControlType.String, title: "Supabase URL", description: "Project URL from Supabase dashboard" },
+  supabaseAnonKey: { type: ControlType.String, title: "Supabase Anon Key", description: "Public anon key" },
   showExplanationsByDefault: { type: ControlType.Boolean, title: "Vis forklaring", enabledTitle: "Ja", disabledTitle: "Nej" },
-  csvData: { type: ControlType.String, title: "CSV", displayTextArea: true },
+  csvData: { type: ControlType.String, title: "CSV (fallback)", displayTextArea: true },
 })
