@@ -3,9 +3,13 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "seed": "node seed.js"
+    "seed": "node seed.js",
+    "build:css": "npx @tailwindcss/cli -i ./kandidattest/input.css -o ./kandidattest/tailwind.css",
+    "watch:css": "npx @tailwindcss/cli -i ./kandidattest/input.css -o ./kandidattest/tailwind.css --watch"
   },
   "dependencies": {
-    "dotenv": "^16.4.0"
+    "@tailwindcss/cli": "^4.2.1",
+    "dotenv": "^16.4.0",
+    "tailwindcss": "^4.2.1"
   }
 }
