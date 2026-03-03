@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Kandidattest skabelon</title>
+    <title>SAGA Kandidattest</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,37 +14,52 @@
 
     <link rel="stylesheet" href="tailwind.css" />
   </head>
-  <body>
+  <body
+    class="min-h-screen h-full grow overflow-y-auto flex flex-col justify-between relative"
+  >
+    <div class="absolute inset-0 overflow-hidden">
+      <img
+        src="assets/saga_yellow_logo.png"
+        alt="SAGA"
+        class="absolute -bottom-20 left-10 -rotate-40 scale-260"
+      />
+    </div>
     <a
-      class="absolute -left-[999px] top-2.5 bg-surface text-black py-2.5 px-3 rounded-xl border border-border focus:left-2.5 focus:outline-none"
+      class="absolute -left-[999px] top-4 bg-white text-black rounded-xl border border-border focus:left-4 focus:outline-none z-20"
       href="#app"
       >Spring til indhold</a
     >
-
-    <header class="pt-7 pb-3">
-      <div class="max-w-[980px] mx-auto py-7 px-5">
-        <h1 class="m-0 mb-2.5 text-3xl leading-tight tracking-tight">
-          Kandidattest
-        </h1>
-        <p class="max-w-[55ch] text-lg text-muted">
-          Svar på udsagn og se hvilke kandidater du matcher bedst.
-        </p>
+    <header class="pt-12 pb-16 z-20">
+      <div class="max-w-4xl mx-auto flex flex-row items-center px-12">
+        <!-- <img
+          src="assets/saga_bw_logo.png"
+          alt="SAGA"
+          class="h-20 w-auto max-w-full object-contain block"
+        /> -->
+        <div class="flex flex-col">
+          <h1 class="text-3xl leading-tight tracking-tight">Kandidattest</h1>
+          <p class="max-w-prose text-lg text-muted">
+            Svar på følgende udsagn og se hvilke kandidater du bedst matcher.
+          </p>
+        </div>
       </div>
     </header>
 
-    <main id="app" class="max-w-[980px] mx-auto py-7 px-5" aria-live="polite">
+    <main
+      id="app"
+      class="max-w-4xl mx-auto w-full grow z-20 px-12"
+      aria-live="polite"
+    >
       <section
         id="screen-start"
-        class="bg-surface border border-border rounded-2xl p-5 my-4 shadow-lg"
+        class="bg-white border border-black/20 rounded shadow-lg px-8 py-12 flex flex-col"
       >
-        <h2>Start</h2>
+        <h2 class="text-2xl leading-tight tracking-tight">Start</h2>
         <p class="text-muted">
           Skabelon. Du kan udskifte tekst, spørgsmål og kandidater senere.
         </p>
 
-        <div
-          class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3 my-4"
-        >
+        <div class="flex flex-col w-1/2 mt-4 mb-8 gap-4">
           <label class="block">
             <span class="block mb-2 text-muted text-sm"
               >Vælg kommune (obligatorisk)</span
@@ -56,75 +71,70 @@
               autocomplete="off"
               placeholder="Søg og vælg kommune"
               required
-              class="w-full p-3 rounded-2xl border border-border bg-white text-text outline-none focus:ring-[3px] focus:ring-accent/45"
+              class="w-full py-3 px-4 border-2 border-border bg-white text-text outline-none focus:ring-[3px] focus:ring-accent/45"
             />
             <datalist id="municipalityList"></datalist>
-            <small id="areaError" class="hidden block mt-1.5 text-[#b00020]"
+            <small id="areaError" class="block mt-2 text-[#b00020]"
               >Vælg en kommune fra listen for at starte testen.</small
             >
           </label>
 
-          <label class="block">
-            <span class="block mb-2 text-muted text-sm"
-              >Vis forklaringer efter hvert spørgsmål</span
+          <label class="flex flex-row items-center gap-2">
+            <span class="block text-muted text-sm"
+              >Vis forklaringer efter hvert spørgsmål?</span
             >
             <input id="toggleExplain" type="checkbox" />
           </label>
         </div>
 
-        <button
-          id="btnStart"
-          class="border border-border bg-accent text-text border-black/20 hover:bg-[#ffd900] py-2.5 px-3.5 rounded-full cursor-pointer font-semibold tracking-wide transition hover:-translate-y-px active:translate-y-0 disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
-        >
-          Start testen
-        </button>
-        <button
-          id="btnReset"
-          class="border border-border bg-text text-white py-2.5 px-3.5 rounded-full cursor-pointer font-semibold tracking-wide transition hover:-translate-y-px hover:bg-black hover:border-black/50 active:translate-y-0 disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
-        >
-          Nulstil
-        </button>
-
-        <details class="mt-3">
-          <summary>Metode og transparens</summary>
-          <p>
-            Match beregnes som afstand mellem dine svar og kandidaters svar på
-            samme udsagn. Du kan vælge at vægte spørgsmål. Se app.js for
-            beregning.
-          </p>
-        </details>
+        <div class="flex flex-row justify-between">
+          <button
+            id="btnReset"
+            class="border-2 bg-white text-black py-3 px-4 cursor-pointer font-semibold tracking-wide transition hover:bg-black hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
+          >
+            Nulstil
+          </button>
+          <button
+            id="btnStart"
+            class="border-2 disabled:border-border border-black bg-accent text-black hover:bg-accent py-3 px-4 cursor-pointer font-semibold tracking-wide transition hover:-translate-y-px disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            Start testen
+          </button>
+        </div>
       </section>
 
       <section
         id="screen-quiz"
-        class="bg-surface border border-border rounded-2xl p-5 my-4 shadow-lg hidden"
+        class="bg-white border border-black/20 rounded shadow-lg px-8 py-12 flex flex-col"
       >
-        <div class="flex flex-wrap gap-3 items-center justify-between">
+        <div class="flex flex-row gap-3 items-start justify-between mb-4">
           <div>
-            <h2 id="qTitle">Spørgsmål</h2>
+            <h2 id="qTitle" class="text-xl leading-tight tracking-tight">
+              Spørgsmål
+            </h2>
             <p id="qMeta" class="text-muted"></p>
           </div>
-          <div class="min-w-[260px]" aria-label="Fremdrift">
+          <div class="min-w-md" aria-label="Fremdrift">
             <div
-              class="h-2.5 rounded-full bg-black/10 border border-border overflow-hidden"
+              class="h-3 rounded-full bg-black/10 border border-border overflow-hidden"
             >
               <div
                 id="barFill"
                 class="h-full w-0 bg-accent transition-[width] duration-150"
               ></div>
             </div>
-            <div id="barText" class="text-muted text-sm"></div>
+            <div id="barText" class="text-muted text-xs text-right mt-2"></div>
           </div>
         </div>
 
         <div
           id="qText"
-          class="text-lg leading-snug p-4 rounded-2xl border border-border bg-surface"
+          class="text-lg leading-snug p-4 border border-border bg-white shadow-md mb-6"
           role="group"
           aria-label="Udsagn"
         ></div>
 
-        <div class="mt-3.5" role="group" aria-label="Vigtighed af spørgsmålet">
+        <div class="" role="group" aria-label="Vigtighed af spørgsmålet">
           <label class="block" for="qWeight">
             <span class="block mb-2 text-muted text-sm"
               >Skal dette spørgsmål vægte ekstra?</span
@@ -198,23 +208,6 @@
         </div>
 
         <div
-          class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3 my-4"
-        >
-          <label class="block">
-            <span class="block mb-2 text-muted text-sm"
-              >Spring over (ingen data)</span
-            >
-            <button
-              type="button"
-              id="btnSkip"
-              class="border border-border bg-text text-white py-2.5 px-3.5 rounded-full cursor-pointer font-semibold tracking-wide transition hover:-translate-y-px hover:bg-black hover:border-black/50 active:translate-y-0 disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              Spring over
-            </button>
-          </label>
-        </div>
-
-        <div
           id="explainBox"
           class="mt-3.5 p-3 rounded-2xl border border-border bg-accent/20 hidden"
           aria-label="Forklaring"
@@ -224,20 +217,27 @@
         </div>
 
         <div class="flex flex-wrap gap-3 items-center justify-between">
-          <div class="flex gap-3 items-center">
+          <div class="w-full flex flex-row justify-between gap-3 items-center">
             <button
               type="button"
               id="btnBack"
-              class="border border-border bg-text text-white py-2.5 px-3.5 rounded-full cursor-pointer font-semibold tracking-wide transition hover:-translate-y-px hover:bg-black hover:border-black/50 active:translate-y-0 disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
+              class="border border-black/60 bg-white text-black/60 text-sm py-3 px-4 cursor-pointer font-normal tracking-wide transition hover:bg-black hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
             >
               Tilbage
             </button>
             <button
               type="button"
               id="btnStartOver"
-              class="border border-border bg-text text-white py-2.5 px-3.5 rounded-full cursor-pointer font-semibold tracking-wide transition hover:-translate-y-px hover:bg-black hover:border-black/50 active:translate-y-0 disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
+              class="border border-black/60 bg-white text-black/60 text-sm py-3 px-4 cursor-pointer font-normal tracking-wide transition hover:bg-red-700 hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
             >
               Start helt forfra
+            </button>
+            <button
+              type="button"
+              id="btnSkip"
+              class="border border-black/60 bg-white text-black/60 text-sm py-3 px-4 cursor-pointer font-normal tracking-wide transition hover:bg-black hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
+            >
+              Spring over
             </button>
           </div>
           <button
@@ -300,9 +300,20 @@
       </section>
     </main>
 
-    <footer class="py-9 pb-11 text-muted">
-      <div class="max-w-[980px] mx-auto py-7 px-5 text-sm">
-        Skabelon til kandidattest. Tilpas frit.
+    <footer class="text-muted pb-12 pt-8 z-20">
+      <div class="max-w-4xl mx-auto text-xs px-12">
+        <div class="max-w-prose flex flex-col gap-2">
+          <p>Kandidattest af SAGA 2026.</p>
+          <p>
+            Metode og transparens: Match beregnes som afstand mellem dine svar
+            og kandidaters svar på samme udsagn. Du kan vælge at vægte
+            spørgsmål. Se app.js for beregning.
+          </p>
+          <p>
+            Privatlivspolitik: Vi indsamler eller gemmer ingen personlige data.
+            Dine svar forbliver helt private og anonyme.
+          </p>
+        </div>
       </div>
     </footer>
 
