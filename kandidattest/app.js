@@ -2,8 +2,86 @@
   "use strict";
 
   const data = window.QUIZ_DATA;
-  if (!data || !Array.isArray(data.questions)) {
-    throw new Error("QUIZ_DATA mangler eller er ugyldigt. Tjek questions.js");
+  if (!data) {
+    throw new Error("QUIZ_DATA mangler. Tjek questions.js");
+  }
+  if (!Array.isArray(data.questions)) data.questions = [];
+
+  // --- Supabase REST helpers ---------------------------------------------------
+
+  function supabaseHeaders() {
+    var c = window.__SUPABASE_CONFIG;
+    if (!c || !c.url || !c.key) return null;
+    return {
+      apikey: c.key,
+      Authorization: "Bearer " + c.key,
+      "Content-Type": "application/json"
+    };
+  }
+
+  function supabaseUrl(table) {
+    return window.__SUPABASE_CONFIG.url + "/rest/v1/" + table;
+  }
+
+  async function loadQuestionsFromSupabase() {
+    var hdrs = supabaseHeaders();
+    if (!hdrs) throw new Error("Ingen Supabase-config");
+    var res = await fetch(supabaseUrl("questions?order=sort_order"), { headers: hdrs });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    var rows = await res.json();
+    return rows.map(function (q) {
+      return {
+        id: q.id,
+        topic: q.topic || "",
+        text: q.text,
+        explain: q.explain || "",
+        defaultWeight: q.default_weight || 2
+      };
+    });
+  }
+
+  async function loadCandidatesFromSupabase() {
+    var hdrs = supabaseHeaders();
+    if (!hdrs) throw new Error("Ingen Supabase-config");
+    var res = await fetch(
+      supabaseUrl("candidates?select=*,candidate_answers(question_id,value)"),
+      { headers: hdrs }
+    );
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    var rows = await res.json();
+    return rows.map(function (c) {
+      var answers = {};
+      (c.candidate_answers || []).forEach(function (a) {
+        answers[a.question_id] = a.value;
+      });
+      return { id: c.id, name: c.name || "Ukendt", party: c.party || "", area: c.area || "", answers: answers };
+    });
+  }
+
+  async function saveUserAnswersToSupabase() {
+    var hdrs = supabaseHeaders();
+    if (!hdrs) throw new Error("Ingen Supabase-config");
+    var sessionId = crypto.randomUUID();
+    var rows = [];
+    for (var i = 0; i < data.questions.length; i++) {
+      var q = data.questions[i];
+      var r = state.responses[q.id];
+      if (!r || r.value === null) continue;
+      rows.push({
+        session_id: sessionId,
+        question_id: q.id,
+        value: r.value,
+        importance_weight: clampInt(r.weight, 1, 3),
+        area: state.area
+      });
+    }
+    if (!rows.length) return;
+    var res = await fetch(supabaseUrl("user_answers"), {
+      method: "POST",
+      headers: hdrs,
+      body: JSON.stringify(rows)
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
   }
 
   const MUNICIPALITIES = [
@@ -56,97 +134,6 @@
 
   const STORAGE_KEY = `kandidattest:${data.quizId}`;
 
-  async function loadCandidatesFromSpreadsheet() {
-    const response = await fetch("./data/kandidat_svar.csv", { cache: "no-store" });
-    if (!response.ok) {
-      throw new Error(`Kunne ikke hente spreadsheet: ${response.status}`);
-    }
-
-    const csvText = await response.text();
-    const rows = parseCsv(csvText);
-    if (!rows.length) return [];
-
-    return rows.map(row => {
-      const candidate = {
-        id: row.id || "",
-        name: row.name || "Ukendt kandidat",
-        party: row.party || "",
-        area: row.area || "",
-        answers: {}
-      };
-
-      for (const q of data.questions) {
-        const raw = row[q.id];
-        if (raw === undefined || raw === null || raw === "") {
-          candidate.answers[q.id] = null;
-          continue;
-        }
-
-        const n = Number(raw);
-        candidate.answers[q.id] = Number.isFinite(n) ? n : null;
-      }
-
-      return candidate;
-    });
-  }
-
-  function parseCsv(text) {
-    const lines = text
-      .split(/\r?\n/)
-      .map(line => line.trim())
-      .filter(Boolean);
-
-    if (!lines.length) return [];
-
-    const headers = splitCsvLine(lines[0]);
-    const out = [];
-
-    for (let i = 1; i < lines.length; i += 1) {
-      const cells = splitCsvLine(lines[i]);
-      const row = {};
-
-      headers.forEach((h, idx) => {
-        row[h] = cells[idx] !== undefined ? cells[idx] : "";
-      });
-
-      out.push(row);
-    }
-
-    return out;
-  }
-
-  function splitCsvLine(line) {
-    const cells = [];
-    let cur = "";
-    let inQuotes = false;
-
-    for (let i = 0; i < line.length; i += 1) {
-      const ch = line[i];
-
-      if (ch === '"') {
-        const next = line[i + 1];
-        if (inQuotes && next === '"') {
-          cur += '"';
-          i += 1;
-        } else {
-          inQuotes = !inQuotes;
-        }
-        continue;
-      }
-
-      if (ch === "," && !inQuotes) {
-        cells.push(cur);
-        cur = "";
-        continue;
-      }
-
-      cur += ch;
-    }
-
-    cells.push(cur);
-    return cells.map(x => x.trim());
-  }
-
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -186,47 +173,16 @@
     renderStart();
   }
 
-  function buildSubmissionPayload() {
-    const payload = {
-      submitted_at: new Date().toISOString(),
-      area: state.area,
-      answered_count: Object.values(state.responses).filter(x => x && x.value !== null).length,
-      total_questions: data.questions.length
-    };
-
-    for (const q of data.questions) {
-      const r = state.responses[q.id];
-      payload[`${q.id}_answer`] = r && r.value !== null ? r.value : "";
-      payload[`${q.id}_weight`] = r ? clampInt(r.weight, 1, 3) : "";
-    }
-
-    return payload;
-  }
-
-  async function saveSubmissionToExternalCsv() {
-    const payload = buildSubmissionPayload();
-    const response = await fetch("/api/submissions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      const txt = await response.text();
-      throw new Error(txt || `Kunne ikke gemme besvarelse (${response.status})`);
-    }
-  }
-
   function queueSubmissionSave() {
     if (state.hasSavedSubmission || state.isSharedResultView || state.step < data.questions.length) return;
 
-    saveSubmissionToExternalCsv()
+    saveUserAnswersToSupabase()
       .then(() => {
         state.hasSavedSubmission = true;
         save();
       })
       .catch(err => {
-        console.error("Kunne ikke gemme testsvar i ekstern CSV", err);
+        console.error("Kunne ikke gemme testsvar:", err);
       });
   }
 
@@ -758,7 +714,21 @@
   }
 
   async function init() {
-    data.candidates = await loadCandidatesFromSpreadsheet();
+    // Load questions from Supabase; keep local fallback from questions.js
+    try {
+      var sbQuestions = await loadQuestionsFromSupabase();
+      if (sbQuestions.length) data.questions = sbQuestions;
+    } catch (err) {
+      console.warn("Bruger lokale spørgsmål:", err.message);
+    }
+
+    try {
+      data.candidates = await loadCandidatesFromSupabase();
+    } catch (err) {
+      console.warn("Kunne ikke hente kandidater:", err.message);
+      data.candidates = [];
+    }
+
     populateMunicipalityList();
     load();
 
@@ -775,6 +745,6 @@
 
   init().catch(err => {
     console.error(err);
-    alert("Kunne ikke indlæse kandidatsvar fra spreadsheet.");
+    alert("Kunne ikke starte kandidattesten.");
   });
 })();

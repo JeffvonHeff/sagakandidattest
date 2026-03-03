@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const http = require("http");
 const fs = require("fs");
 const fsp = require("fs/promises");
@@ -5,43 +7,9 @@ const path = require("path");
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT_DIR = path.join(__dirname, "kandidattest");
-const DATA_DIR = path.join(ROOT_DIR, "data");
-const SUBMISSION_CSV = path.join(DATA_DIR, "test_besvarelser.csv");
 
-function sendJson(res, status, payload) {
-  res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
-  res.end(JSON.stringify(payload));
-}
-
-function csvEscape(value) {
-  const str = value === null || value === undefined ? "" : String(value);
-  return `"${str.replace(/"/g, '""')}"`;
-}
-
-async function appendSubmission(submission) {
-  await fsp.mkdir(DATA_DIR, { recursive: true });
-
-  const keys = Object.keys(submission);
-  const header = keys.map(csvEscape).join(",") + "\n";
-  const row = keys.map(k => csvEscape(submission[k])).join(",") + "\n";
-
-  const fileExists = fs.existsSync(SUBMISSION_CSV);
-  if (!fileExists) {
-    await fsp.writeFile(SUBMISSION_CSV, header + row, "utf8");
-    return;
-  }
-
-  const content = await fsp.readFile(SUBMISSION_CSV, "utf8");
-  const firstLine = content.split(/\r?\n/)[0] || "";
-  const existingHeader = firstLine;
-  const expectedHeader = keys.map(csvEscape).join(",");
-
-  if (existingHeader !== expectedHeader) {
-    throw new Error("CSV-header matcher ikke submission payload.");
-  }
-
-  await fsp.appendFile(SUBMISSION_CSV, row, "utf8");
-}
+const SUPABASE_URL = process.env.SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "";
 
 function resolveStaticPath(urlPath) {
   const cleanPath = urlPath.split("?")[0];
@@ -61,30 +29,16 @@ const MIME_TYPES = {
 
 const server = http.createServer(async (req, res) => {
   try {
-    if (req.method === "POST" && req.url === "/api/submissions") {
-      let body = "";
-      req.on("data", chunk => {
-        body += chunk;
-        if (body.length > 1_000_000) {
-          req.destroy();
-        }
+    if (req.method === "GET" && req.url === "/api/config.js") {
+      const js = "window.__SUPABASE_CONFIG=" + JSON.stringify({
+        url: SUPABASE_URL,
+        key: SUPABASE_ANON_KEY
+      }) + ";";
+      res.writeHead(200, {
+        "Content-Type": "application/javascript; charset=utf-8",
+        "Cache-Control": "no-store"
       });
-
-      req.on("end", async () => {
-        try {
-          const payload = JSON.parse(body || "{}");
-          if (!payload || typeof payload !== "object") {
-            sendJson(res, 400, { error: "Ugyldigt payload" });
-            return;
-          }
-
-          await appendSubmission(payload);
-          sendJson(res, 201, { ok: true });
-        } catch (err) {
-          console.error(err);
-          sendJson(res, 500, { error: "Kunne ikke gemme submission" });
-        }
-      });
+      res.end(js);
       return;
     }
 
@@ -94,14 +48,25 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    const filePath = resolveStaticPath(req.url || "/");
+    let filePath = resolveStaticPath(req.url || "/");
     if (!filePath) {
       res.writeHead(403);
       res.end("Forbidden");
       return;
     }
 
-    const stat = await fsp.stat(filePath).catch(() => null);
+    let stat = await fsp.stat(filePath).catch(() => null);
+
+    // Clean URLs: /politiker -> /politiker.html
+    if ((!stat || !stat.isFile()) && !path.extname(filePath)) {
+      const htmlPath = filePath + ".html";
+      const htmlStat = await fsp.stat(htmlPath).catch(() => null);
+      if (htmlStat && htmlStat.isFile()) {
+        filePath = htmlPath;
+        stat = htmlStat;
+      }
+    }
+
     if (!stat || !stat.isFile()) {
       res.writeHead(404);
       res.end("Not found");
@@ -127,4 +92,10 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`Kandidattest server kører på http://localhost:${PORT}`);
+  if (SUPABASE_URL) {
+    console.log("Supabase tilsluttet: " + SUPABASE_URL);
+    console.log("Politiker-formular: http://localhost:" + PORT + "/politiker");
+  } else {
+    console.log("Advarsel: SUPABASE_URL ikke sat – kører uden database");
+  }
 });
