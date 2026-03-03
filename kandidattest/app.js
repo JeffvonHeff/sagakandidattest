@@ -407,39 +407,38 @@
 
   function renderResultItem(row, idx) {
     const div = document.createElement("div");
-    div.className = "result-item";
+    div.className = "border border-border rounded-2xl p-3.5 bg-surface shadow-lg";
 
     const top = document.createElement("div");
-    top.className = "result-top";
+    top.className = "flex items-baseline justify-between gap-2.5 flex-wrap";
 
     const name = document.createElement("div");
-    name.innerHTML = `<strong>${escapeHtml(row.candidate.name)}</strong> <span class="muted">(${escapeHtml(row.candidate.party || "Uafh")})</span>`;
+    name.innerHTML = `<strong>${escapeHtml(row.candidate.name)}</strong> <span class="text-muted">(${escapeHtml(row.candidate.party || "Uafh")})</span>`;
 
     const pill = document.createElement("div");
-    pill.className = "pill";
+    pill.className = "border border-border rounded-full py-1.5 px-2.5 bg-accent/20 text-sm text-text";
     pill.textContent = `${row.pct}% match, ${row.compared} udsagn sammenlignet`;
 
     top.appendChild(name);
     top.appendChild(pill);
 
     const meta = document.createElement("div");
-    meta.className = "muted small";
+    meta.className = "text-muted text-sm";
     meta.textContent = row.candidate.area ? `Område: ${row.candidate.area}` : "";
 
     const details = document.createElement("details");
-    details.className = "details";
+    details.className = "mt-3";
     const summary = document.createElement("summary");
     summary.textContent = "Se forskelle pr udsagn";
     details.appendChild(summary);
 
     const list = document.createElement("div");
-    list.className = "muted small";
-    list.style.marginTop = "10px";
+    list.className = "text-muted text-sm mt-2.5";
     list.appendChild(buildDiffList(row.candidate));
     details.appendChild(list);
 
     const topicBox = document.createElement("div");
-    topicBox.className = "topic-scores";
+    topicBox.className = "mt-2.5";
     topicBox.appendChild(buildTopicScoreList(row.topicScores));
 
     div.appendChild(top);
@@ -481,25 +480,24 @@
     const wrap = document.createElement("div");
 
     const heading = document.createElement("div");
-    heading.className = "small muted";
+    heading.className = "text-sm text-muted";
     heading.textContent = "Match fordelt på emner";
     wrap.appendChild(heading);
 
     if (!Array.isArray(topicScores) || !topicScores.length) {
       const none = document.createElement("div");
-      none.className = "muted small";
-      none.style.marginTop = "6px";
+      none.className = "text-muted text-sm mt-1.5";
       none.textContent = "Ingen emner med sammenlignelige svar.";
       wrap.appendChild(none);
       return wrap;
     }
 
     const list = document.createElement("div");
-    list.className = "topic-score-list";
+    list.className = "flex flex-wrap gap-2 mt-2";
 
     topicScores.forEach(item => {
       const chip = document.createElement("div");
-      chip.className = "topic-score-chip";
+      chip.className = "border border-border rounded-full py-1 px-2 bg-black/5 text-xs";
       chip.textContent = `${item.topic}: ${item.pct}% (${item.compared})`;
       list.appendChild(chip);
     });
