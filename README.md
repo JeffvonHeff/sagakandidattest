@@ -26,7 +26,7 @@ Databasen er sat op i Supabase med 4 tabeller og `question_id` som rygrad:
 | Tabel | Formål |
 |---|---|
 | `questions` | De endelige udsagn |
-| `candidates` | Politikerprofiler (navn, parti, kommune) |
+| `candidates` | Politikerprofiler (navn, parti, storkreds) |
 | `candidate_answers` | Én række per politiker per spørgsmål (`value` + `stance`) |
 | `user_answers` | Vælgernes besvarelser (write-only -- kan ikke læses af anon) |
 
@@ -65,7 +65,7 @@ Det upsert'er (indsætter eller opdaterer) alle spørgsmål i databasen. Eksiste
 
 ## Politiker-formular
 
-Send linket `<din-url>/politiker` til politikerne. De udfylder navn, parti og kommune, besvarer alle udsagn, og deres svar gemmes direkte i databasen. Når de har svaret, dukker de automatisk op som match-kandidater i testen.
+Send linket `<din-url>/politiker` til politikerne. De udfylder navn, parti og storkreds, besvarer alle udsagn, og deres svar gemmes direkte i databasen. Når de har svaret, dukker de automatisk op som match-kandidater i testen.
 
 ## Framer (React)
 

@@ -15,7 +15,7 @@
     return {
       apikey: c.key,
       Authorization: "Bearer " + c.key,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     };
   }
 
@@ -26,7 +26,9 @@
   async function loadQuestionsFromSupabase() {
     var hdrs = supabaseHeaders();
     if (!hdrs) throw new Error("Ingen Supabase-config");
-    var res = await fetch(supabaseUrl("questions?order=sort_order"), { headers: hdrs });
+    var res = await fetch(supabaseUrl("questions?order=sort_order"), {
+      headers: hdrs,
+    });
     if (!res.ok) throw new Error("HTTP " + res.status);
     var rows = await res.json();
     return rows.map(function (q) {
@@ -35,7 +37,7 @@
         topic: q.topic || "",
         text: q.text,
         explain: q.explain || "",
-        defaultWeight: q.default_weight || 2
+        defaultWeight: q.default_weight || 2,
       };
     });
   }
@@ -45,7 +47,7 @@
     if (!hdrs) throw new Error("Ingen Supabase-config");
     var res = await fetch(
       supabaseUrl("candidates?select=*,candidate_answers(question_id,value)"),
-      { headers: hdrs }
+      { headers: hdrs },
     );
     if (!res.ok) throw new Error("HTTP " + res.status);
     var rows = await res.json();
@@ -54,7 +56,13 @@
       (c.candidate_answers || []).forEach(function (a) {
         answers[a.question_id] = a.value;
       });
-      return { id: c.id, name: c.name || "Ukendt", party: c.party || "", area: c.area || "", answers: answers };
+      return {
+        id: c.id,
+        name: c.name || "Ukendt",
+        party: c.party || "",
+        area: c.area || "",
+        answers: answers,
+      };
     });
   }
 
@@ -72,20 +80,29 @@
         question_id: q.id,
         value: r.value,
         importance_weight: clampInt(r.weight, 1, 3),
-        area: state.area
+        area: state.area,
       });
     }
     if (!rows.length) return;
     var res = await fetch(supabaseUrl("user_answers"), {
       method: "POST",
       headers: hdrs,
-      body: JSON.stringify(rows)
+      body: JSON.stringify(rows),
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
   }
 
   const MUNICIPALITIES = [
-    "Albertslund", "Allerød", "Assens", "Ballerup", "Billund", "Bornholm", "Brøndby", "Brønderslev", "Dragør", "Egedal", "Esbjerg", "Fanø", "Favrskov", "Faxe", "Fredensborg", "Fredericia", "Frederiksberg", "Frederikshavn", "Frederikssund", "Furesø", "Faaborg-Midtfyn", "Gentofte", "Gladsaxe", "Glostrup", "Greve", "Gribskov", "Guldborgsund", "Haderslev", "Halsnæs", "Hedensted", "Helsingør", "Herlev", "Herning", "Hillerød", "Hjørring", "Holbæk", "Holstebro", "Horsens", "Hvidovre", "Høje-Taastrup", "Hørsholm", "Ikast-Brande", "Ishøj", "Jammerbugt", "Kalundborg", "Kerteminde", "Kolding", "København", "Køge", "Langeland", "Lejre", "Lemvig", "Lolland", "Lyngby-Taarbæk", "Læsø", "Mariagerfjord", "Middelfart", "Morsø", "Norddjurs", "Nordfyns", "Nyborg", "Næstved", "Odder", "Odense", "Odsherred", "Randers", "Rebild", "Ringkøbing-Skjern", "Ringsted", "Roskilde", "Rudersdal", "Rødovre", "Samsø", "Silkeborg", "Skanderborg", "Skive", "Slagelse", "Solrød", "Sorø", "Stevns", "Struer", "Svendborg", "Syddjurs", "Sønderborg", "Thisted", "Tårnby", "Tønder", "Vallensbæk", "Varde", "Vejen", "Vejle", "Vesthimmerlands", "Viborg", "Vordingborg", "Ærø", "Aabenraa", "Aalborg", "Aarhus"
+    "København",
+    "Københavns Omegn",
+    "Nordsjælland",
+    "Bornholm",
+    "Sjælland",
+    "Fyn",
+    "Sydjylland",
+    "Østjylland",
+    "Vestjylland",
+    "Nordjylland",
   ];
 
   const els = {
@@ -120,16 +137,16 @@
     btnShare: document.getElementById("btnShare"),
 
     btnStartOver: document.getElementById("btnStartOver"),
-    btnRestartToStart: document.getElementById("btnRestartToStart")
+    btnRestartToStart: document.getElementById("btnRestartToStart"),
   };
 
   const state = {
     step: 0,
     area: "",
     showExplain: false,
-    responses: {},  // { qid: { value: number|null, weight: number } }
+    responses: {}, // { qid: { value: number|null, weight: number } }
     hasSavedSubmission: false,
-    isSharedResultView: false
+    isSharedResultView: false,
   };
 
   const STORAGE_KEY = `kandidattest:${data.quizId}`;
@@ -144,7 +161,10 @@
       state.step = clampInt(saved.step, 0, data.questions.length);
       state.area = typeof saved.area === "string" ? saved.area : "";
       state.showExplain = !!saved.showExplain;
-      state.responses = saved.responses && typeof saved.responses === "object" ? saved.responses : {};
+      state.responses =
+        saved.responses && typeof saved.responses === "object"
+          ? saved.responses
+          : {};
       state.hasSavedSubmission = !!saved.hasSavedSubmission;
     } catch {
       // Ignorer corrupt storage
@@ -157,7 +177,7 @@
       area: state.area,
       showExplain: state.showExplain,
       responses: state.responses,
-      hasSavedSubmission: state.hasSavedSubmission
+      hasSavedSubmission: state.hasSavedSubmission,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   }
@@ -174,14 +194,19 @@
   }
 
   function queueSubmissionSave() {
-    if (state.hasSavedSubmission || state.isSharedResultView || state.step < data.questions.length) return;
+    if (
+      state.hasSavedSubmission ||
+      state.isSharedResultView ||
+      state.step < data.questions.length
+    )
+      return;
 
     saveUserAnswersToSupabase()
       .then(() => {
         state.hasSavedSubmission = true;
         save();
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Kunne ikke gemme testsvar:", err);
       });
   }
@@ -225,7 +250,9 @@
 
   function isValidMunicipality(value) {
     const normalized = normalizeMunicipalityName(value);
-    return MUNICIPALITIES.some(item => normalizeMunicipalityName(item) === normalized);
+    return MUNICIPALITIES.some(
+      (item) => normalizeMunicipalityName(item) === normalized,
+    );
   }
 
   function validateArea(showError = true) {
@@ -243,7 +270,7 @@
 
   function populateMunicipalityList() {
     els.municipalityList.innerHTML = "";
-    MUNICIPALITIES.forEach(name => {
+    MUNICIPALITIES.forEach((name) => {
       const option = document.createElement("option");
       option.value = name;
       els.municipalityList.appendChild(option);
@@ -269,23 +296,34 @@
     els.qWeight.setAttribute("aria-valuenow", String(currentWeight));
 
     els.qExplain.textContent = q.explain || "";
-    els.explainBox.classList.toggle("hidden", !(state.showExplain && q.explain));
+    els.explainBox.classList.toggle(
+      "hidden",
+      !(state.showExplain && q.explain),
+    );
 
-    const pct = Math.round(((state.step) / data.questions.length) * 100);
+    const pct = Math.round((state.step / data.questions.length) * 100);
     els.barFill.style.width = `${pct}%`;
     els.barText.textContent = `${state.step} af ${data.questions.length}`;
 
-    els.btnFinish.classList.toggle("hidden", state.step !== data.questions.length - 1);
+    els.btnFinish.classList.toggle(
+      "hidden",
+      state.step !== data.questions.length - 1,
+    );
   }
 
   function renderResult() {
     showScreen("result");
     queueSubmissionSave();
-    const answered = Object.values(state.responses).filter(x => x && x.value !== null).length;
+    const answered = Object.values(state.responses).filter(
+      (x) => x && x.value !== null,
+    ).length;
 
     els.resultMeta.textContent = `Du har svaret på ${answered} af ${data.questions.length} udsagn.`;
 
-    const filteredCandidates = filterCandidatesByArea(data.candidates, state.area);
+    const filteredCandidates = filterCandidatesByArea(
+      data.candidates,
+      state.area,
+    );
     const results = scoreAllCandidates(filteredCandidates);
 
     els.resultList.innerHTML = "";
@@ -301,7 +339,7 @@
   function filterCandidatesByArea(candidates, area) {
     const a = normalizeArea(area);
     if (!a) return candidates;
-    return candidates.filter(c => normalizeArea(c.area).includes(a));
+    return candidates.filter((c) => normalizeArea(c.area).includes(a));
   }
 
   // Scoring: vægtet cosine similarity på centrerede Likert-værdier.
@@ -328,7 +366,7 @@
         topic,
         weight: w,
         userValue: Number(user.value),
-        candidateValue: Number(candVal)
+        candidateValue: Number(candVal),
       };
 
       comparableAnswers.push(comparable);
@@ -344,7 +382,7 @@
       .map(([topic, values]) => ({
         topic,
         compared: values.length,
-        pct: similarityToPercent(weightedCenteredCosine(values))
+        pct: similarityToPercent(weightedCenteredCosine(values)),
       }))
       .sort((a, b) => {
         if (b.pct !== a.pct) return b.pct - a.pct;
@@ -393,13 +431,13 @@
 
   function scoreAllCandidates(candidates) {
     return candidates
-      .map(c => {
+      .map((c) => {
         const s = scoreCandidate(c);
         return {
           candidate: c,
           pct: s.pct,
           compared: s.compared,
-          topicScores: s.topicScores
+          topicScores: s.topicScores,
         };
       })
       .sort((a, b) => b.pct - a.pct);
@@ -424,7 +462,9 @@
 
     const meta = document.createElement("div");
     meta.className = "muted small";
-    meta.textContent = row.candidate.area ? `Område: ${row.candidate.area}` : "";
+    meta.textContent = row.candidate.area
+      ? `Område: ${row.candidate.area}`
+      : "";
 
     const details = document.createElement("details");
     details.className = "details";
@@ -497,7 +537,7 @@
     const list = document.createElement("div");
     list.className = "topic-score-list";
 
-    topicScores.forEach(item => {
+    topicScores.forEach((item) => {
       const chip = document.createElement("div");
       chip.className = "topic-score-chip";
       chip.textContent = `${item.topic}: ${item.pct}% (${item.compared})`;
@@ -519,13 +559,17 @@
   }
 
   function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, ch => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[ch]));
+    return String(s).replace(
+      /[&<>"']/g,
+      (ch) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[ch],
+    );
   }
 
   function startQuiz() {
@@ -533,9 +577,12 @@
       return;
     }
 
-    state.area = MUNICIPALITIES.find(
-      item => normalizeMunicipalityName(item) === normalizeMunicipalityName(els.areaInput.value)
-    ) || "";
+    state.area =
+      MUNICIPALITIES.find(
+        (item) =>
+          normalizeMunicipalityName(item) ===
+          normalizeMunicipalityName(els.areaInput.value),
+      ) || "";
     state.showExplain = els.toggleExplain.checked;
     save();
     renderQuiz();
@@ -581,7 +628,6 @@
     }
   }
 
-
   function updateCurrentWeight(value) {
     const q = currentQuestion();
     if (!q) return;
@@ -608,30 +654,32 @@
   }
 
   function startOverToStart() {
-  // Ryd alt der påvirker kommune og svar
-  state.step = 0;
-  state.area = "";
-  state.responses = {};
-  state.hasSavedSubmission = false;
-  state.isSharedResultView = false;
+    // Ryd alt der påvirker storkreds og svar
+    state.step = 0;
+    state.area = "";
+    state.responses = {};
+    state.hasSavedSubmission = false;
+    state.isSharedResultView = false;
 
-  // Du kan vælge at beholde showExplain eller nulstille den
-  // Jeg nulstiller den, så startskærmen er ren
-  state.showExplain = false;
+    // Du kan vælge at beholde showExplain eller nulstille den
+    // Jeg nulstiller den, så startskærmen er ren
+    state.showExplain = false;
 
-  // Ryd persisted state så du ikke arver gamle valg
-  localStorage.removeItem(STORAGE_KEY);
+    // Ryd persisted state så du ikke arver gamle valg
+    localStorage.removeItem(STORAGE_KEY);
 
-  // Opdater UI
-  renderStart();
-}
+    // Opdater UI
+    renderStart();
+  }
 
   function copyShareLink() {
     const payload = {
       a: state.area,
-      r: compactResponses(state.responses)
+      r: compactResponses(state.responses),
     };
-    const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
+    const encoded = encodeURIComponent(
+      btoa(unescape(encodeURIComponent(JSON.stringify(payload)))),
+    );
     const url = `${location.origin}${location.pathname}?share=${encoded}`;
     navigator.clipboard.writeText(url).catch(() => {});
   }
@@ -681,7 +729,7 @@
     els.btnStart.addEventListener("click", startQuiz);
     els.btnReset.addEventListener("click", resetAll);
 
-    document.querySelectorAll(".ans").forEach(btn => {
+    document.querySelectorAll(".ans").forEach((btn) => {
       btn.addEventListener("click", () => answerCurrent(btn.dataset.value));
     });
 
@@ -692,8 +740,10 @@
     els.btnRestart.addEventListener("click", restart);
     els.btnShare.addEventListener("click", copyShareLink);
 
-    if (els.btnStartOver) els.btnStartOver.addEventListener("click", startOverToStart);
-    if (els.btnRestartToStart) els.btnRestartToStart.addEventListener("click", startOverToStart);
+    if (els.btnStartOver)
+      els.btnStartOver.addEventListener("click", startOverToStart);
+    if (els.btnRestartToStart)
+      els.btnRestartToStart.addEventListener("click", startOverToStart);
 
     els.toggleExplain.addEventListener("change", () => {
       state.showExplain = els.toggleExplain.checked;
@@ -743,7 +793,7 @@
     }
   }
 
-  init().catch(err => {
+  init().catch((err) => {
     console.error(err);
     alert("Kunne ikke starte kandidattesten.");
   });
