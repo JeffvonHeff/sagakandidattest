@@ -60,11 +60,14 @@ CREATE POLICY "anon_read_candidate_answers" ON candidate_answers FOR SELECT TO a
 CREATE POLICY "anon_insert_questions" ON questions FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "anon_update_questions" ON questions FOR UPDATE TO anon USING (true) WITH CHECK (true);
 
--- Politician form: create/update candidates and their answers
-CREATE POLICY "anon_insert_candidates"        ON candidates        FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "anon_update_candidates"        ON candidates        FOR UPDATE TO anon USING (true) WITH CHECK (true);
+-- Candidate answers: allow anon insert+update (the politician form submits via anon key,
+-- but only after token verification through SECURITY DEFINER RPCs)
 CREATE POLICY "anon_insert_candidate_answers" ON candidate_answers FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "anon_update_candidate_answers" ON candidate_answers FOR UPDATE TO anon USING (true) WITH CHECK (true);
+
+-- NOTE: candidates table no longer has anon insert/update policies.
+-- Candidates are pre-seeded via service role key; profile updates go through
+-- the update_candidate_profile RPC (SECURITY DEFINER). See migration-002-tokens.sql.
 
 -- Quiz users: write-only access to user_answers
 CREATE POLICY "anon_insert_user_answers" ON user_answers FOR INSERT TO anon WITH CHECK (true);

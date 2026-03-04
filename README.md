@@ -30,7 +30,9 @@ Databasen er sat op i Supabase med 4 tabeller og `question_id` som rygrad:
 | `candidate_answers` | Én række per politiker per spørgsmål (`value` + `stance`) |
 | `user_answers` | Vælgernes besvarelser (write-only -- kan ikke læses af anon) |
 
-Skemaet ligger i `supabase/migration.sql` som reference.
+| `candidate_tokens` | Token + e-mail per kandidat (ikke tilgængelig for anon) |
+
+Skemaet ligger i `supabase/migration.sql` og `supabase/migration-002-tokens.sql` som reference.
 
 ## Sådan opdaterer I spørgsmålene
 
@@ -63,9 +65,26 @@ npm run seed
 
 Det upsert'er (indsætter eller opdaterer) alle spørgsmål i databasen. Eksisterende spørgsmål med samme `id` bliver opdateret.
 
+## Kandidater og tokens
+
+Alle kandidater er pre-seeded fra `data/candidates.csv`. Hver kandidat har et unikt token der bruges til at identificere sig i formularen.
+
+For at seed kandidater (kræver `SUPABASE_SERVICE_ROLE_KEY` i `.env`):
+
+```bash
+npm run seed:candidates
+```
+
+Inden du kører seed, skal `migration-002-tokens.sql` være kørt i Supabase SQL Editor.
+
 ## Politiker-formular
 
-Send linket `<din-url>/politiker` til politikerne. De udfylder navn, parti og storkreds, besvarer alle udsagn, og deres svar gemmes direkte i databasen. Når de har svaret, dukker de automatisk op som match-kandidater i testen.
+Send linket `<din-url>/politiker` til politikerne sammen med deres personlige token. Formularen:
+
+1. Beder om token
+2. Verificerer kandidaten og viser forudfyldte oplysninger (read-only hvis data findes, redigerbare hvis tomme)
+3. Lader kandidaten besvare alle udsagn
+4. Kandidaten kan genbesøge linket og opdatere sine svar
 
 ## Framer (React)
 

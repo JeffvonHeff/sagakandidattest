@@ -92,18 +92,7 @@
     if (!res.ok) throw new Error("HTTP " + res.status);
   }
 
-  const MUNICIPALITIES = [
-    "København",
-    "Københavns Omegn",
-    "Nordsjælland",
-    "Bornholm",
-    "Sjælland",
-    "Fyn",
-    "Sydjylland",
-    "Østjylland",
-    "Vestjylland",
-    "Nordjylland",
-  ];
+  const MUNICIPALITIES = (window.STORKREDS_DATA || {}).STORKREDSE || [];
 
   const els = {
     start: document.getElementById("screen-start"),
