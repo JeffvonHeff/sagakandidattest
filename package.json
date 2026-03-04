@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
+    "build": "echo 'Static site – no build step'",
     "seed": "node seed.js"
   },
   "dependencies": {
