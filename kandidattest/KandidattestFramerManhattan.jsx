@@ -2,181 +2,47 @@ import * as React from "react";
 import { addPropertyControls, ControlType } from "framer";
 
 const FALLBACK_QUESTIONS = [
-  {
-    id: "q1",
-    topic: "Klima",
-    text: "Kommunen skal plante flere træer i byen.",
-    explain: "Kort udsagn om grønne områder.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q2",
-    topic: "Klima",
-    text: "Nye kommunale bygninger skal være mere energieffektive.",
-    explain: "Handler om energikrav til offentlige bygninger.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q3",
-    topic: "Miljø",
-    text: "Der skal være flere affaldssorteringspunkter i boligområder.",
-    explain: "Lettere adgang til sortering.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q4",
-    topic: "Skole",
-    text: "Der skal være færre elever i hver skoleklasse.",
-    explain: "Fokus på klassestørrelse.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q5",
-    topic: "Skole",
-    text: "Skoler skal have flere penge til specialundervisning.",
-    explain: "Støtte til elever med særlige behov.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q6",
-    topic: "Dagtilbud",
-    text: "Der skal ansættes flere pædagoger i daginstitutioner.",
-    explain: "Voksne pr. barn i institutioner.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q7",
-    topic: "Sundhed",
-    text: "Kommunen skal bruge flere penge på ældrepleje.",
-    explain: "Bedre hjælp til ældre borgere.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q8",
-    topic: "Sundhed",
-    text: "Det skal være nemmere at få hjemmehjælp.",
-    explain: "Adgang til støtte i hjemmet.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q9",
-    topic: "Transport",
-    text: "Der skal være flere cykelstier i kommunen.",
-    explain: "Udbygning af cykelinfrastruktur.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q10",
-    topic: "Transport",
-    text: "Busser og tog skal have højere prioritet end biltrafik.",
-    explain: "Fokus på kollektiv trafik.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q11",
-    topic: "Transport",
-    text: "Der skal indføres lavere hastighed i boligområder.",
-    explain: "Trafiksikkerhed tæt på boliger.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q12",
-    topic: "Bolig",
-    text: "Kommunen skal bygge flere billige boliger.",
-    explain: "Flere boliger med lav husleje.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q13",
-    topic: "Bolig",
-    text: "Nye boligområder skal have grønne fællesarealer.",
-    explain: "Parker og opholdsrum i nye kvarterer.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q14",
-    topic: "Tryghed",
-    text: "Der skal være mere synlig lokal tryghedsskabende indsats.",
-    explain: "Fx gadeplansindsatser og nærvær i byrum.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q15",
-    topic: "Tryghed",
-    text: "Kommunen skal investere mere i forebyggelse for unge i risiko.",
-    explain: "Tidlige indsatser frem for senere reparation.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q16",
-    topic: "Kultur",
-    text: "Der skal bruges flere penge på kultur- og fritidstilbud.",
-    explain: "Biblioteker, kulturhuse og aktiviteter.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q17",
-    topic: "Kultur",
-    text: "Kommunen skal støtte flere lokale idrætsforeninger.",
-    explain: "Tilskud og faciliteter til foreninger.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q18",
-    topic: "Erhverv",
-    text: "Det skal være lettere for små virksomheder at få tilladelser.",
-    explain: "Mindre bureaukrati for iværksættere.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q19",
-    topic: "Erhverv",
-    text: "Kommunen skal prioritere lokale indkøb hos små leverandører.",
-    explain: "Støtte til lokalt erhvervsliv.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q20",
-    topic: "Digitalisering",
-    text: "Flere kommunale services skal kunne klares digitalt.",
-    explain: "Nem selvbetjening online.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q21",
-    topic: "Digitalisering",
-    text: "Kommunen skal tilbyde bedre hjælp til borgere, der ikke er digitale.",
-    explain: "Support til borgere med lav digital erfaring.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q22",
-    topic: "Økonomi",
-    text: "Kommunen må gerne hæve skatten lidt for at forbedre velfærden.",
-    explain: "Skat mod bedre service.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q23",
-    topic: "Økonomi",
-    text: "Kommunen skal spare på administration før den sparer på velfærd.",
-    explain: "Prioritering af kernevelfærd.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q24",
-    topic: "Demokrati",
-    text: "Borgerne skal inddrages mere i lokale beslutninger.",
-    explain: "Mere borgerdialog og høringer.",
-    defaultWeight: 1,
-  },
-  {
-    id: "q25",
-    topic: "Demokrati",
-    text: "Kommunen skal gøre det nemmere at forstå politiske beslutninger.",
-    explain: "Klar og enkel kommunikation.",
-    defaultWeight: 1,
-  },
+{ id:"q1",topic:"Uddannelse",text:"Reformer, der forkorter uddannelser, lægger et for stort pres på studerende og går ud over unges trivsel.",defaultWeight:1},
+{ id:"q2",topic:"Uddannelse",text:"Det 6. SU-år bør genindføres.",defaultWeight:1},
+{ id:"q3",topic:"Uddannelse",text:"SU’en bør hæves for at følge de stigende leveomkostninger for studerende.",defaultWeight:1},
+
+{ id:"q4",topic:"Klima miljø og grøn omstilling",text:"Beskyttelsen af rent drikkevand bør prioriteres højere end landbrugets interesser.",defaultWeight:1},
+{ id:"q5",topic:"Klima miljø og grøn omstilling",text:"Den grønne omstilling bør gennemføres, også hvis det kan svække dansk konkurrenceevne.",defaultWeight:1},
+{ id:"q6",topic:"Klima miljø og grøn omstilling",text:"Kravene til svineproduktionen bør skærpes – også hvis det gør dansk landbrug mindre konkurrencedygtigt.",defaultWeight:1},
+{ id:"q7",topic:"Klima miljø og grøn omstilling",text:"Danmark bør fremrykke målet om klimaneutralitet fra 2045 til 2035.",defaultWeight:1},
+
+{ id:"q8",topic:"EU international politik og solidaritet",text:"Danmark bør anerkende Palæstina som stat.",defaultWeight:1},
+{ id:"q9",topic:"EU international politik og solidaritet",text:"Danmark bør øge den humanitære hjælp til mennesker ramt af krig og konflikter – også hvis det kræver omprioriteringer i de offentlige udgifter.",defaultWeight:1},
+{ id:"q10",topic:"EU international politik og solidaritet",text:"Danmark bør styrke samarbejdet i EU og NATO – også hvis det betyder mindre national selvbestemmelse og højere forsvarsudgifter.",defaultWeight:1},
+
+{ id:"q11",topic:"Demokrati",text:"Stemmeretsalderen bør sænkes til 16 år.",defaultWeight:1},
+{ id:"q12",topic:"Demokrati",text:"Der bør indføres strengere regler for lobbyisme i dansk politik.",defaultWeight:1},
+
+{ id:"q13",topic:"Sundhed og trivsel",text:"Ordningen med gratis psykologhjælp til 18–24-årige med mild til moderat angst eller depression bør udvides til at omfatte flere aldersgrupper.",defaultWeight:1},
+{ id:"q14",topic:"Sundhed og trivsel",text:"Ventetiden på udredning af børn og unge i psykiatrien bør nedbringes – også hvis det kræver øget brug af private behandlere.",defaultWeight:1},
+
+{ id:"q15",topic:"Bolig",text:"Staten bør regulere boligmarkedet for at gøre det lettere for unge og førstegangskøbere at komme ind på boligmarkedet.",defaultWeight:1},
+{ id:"q16",topic:"Bolig",text:"Huslejestigninger bør i højere grad reguleres ved lov.",defaultWeight:1},
+{ id:"q17",topic:"Bolig",text:"Der bør bygges flere billige studieboliger i de større byer.",defaultWeight:1},
+
+{ id:"q18",topic:"Værdipolitik ligestilling og repræsentation",text:"Der bør gennemføres politiske tiltag for at mindske polarisering og had i den offentlige debat.",defaultWeight:1},
+{ id:"q19",topic:"Værdipolitik ligestilling og repræsentation",text:"Der bør iværksættes tiltag for at øge repræsentationen af køn og minoriteter i politik.",defaultWeight:1},
+{ id:"q20",topic:"Værdipolitik ligestilling og repræsentation",text:"Skoler og uddannelsesinstitutioner bør gøre mere for at sikre trivsel for LGBT+-elever.",defaultWeight:1},
+
+{ id:"q21",topic:"Forsvar og sikkerhed",text:"Staten bør have mulighed for at indføre overvågning af borgernes private kommunikation for at forebygge kriminalitet og terror.",defaultWeight:1},
+{ id:"q22",topic:"Forsvar og sikkerhed",text:"Danmark bør øge forsvarsbudgettet – også hvis det betyder færre penge til andre områder.",defaultWeight:1},
+
+{ id:"q23",topic:"Fremtidens arbejdsmarked",text:"AI bør reguleres politisk for at beskytte unges jobsikkerhed.",defaultWeight:1},
+
+{ id:"q24",topic:"Udlændinge og integration",text:"Danmarks udlændingepolitik bør strammes.",defaultWeight:1},
+{ id:"q25",topic:"Udlændinge og integration",text:"Danmark bør gennemføre udvisninger af kriminelle udlændinge – også selvom det strider mod Den Europæiske Menneskerettighedskonvention.",defaultWeight:1},
+
+{ id:"q26",topic:"Skat afgifter økonomi og arbejdsmarked",text:"Investeringer i uddannelse bør prioriteres højere end skattelettelser.",defaultWeight:1},
+{ id:"q27",topic:"Skat afgifter økonomi og arbejdsmarked",text:"For at styrke Danmarks konkurrenceevne bør økonomisk vækst prioriteres højere end at reducere økonomisk ulighed.",defaultWeight:1},
+{ id:"q28",topic:"Skat afgifter økonomi og arbejdsmarked",text:"Der bør indføres formueskat for at reducere økonomisk ulighed.",defaultWeight:1},
+
+{ id:"q29",topic:"Retspolitik og tryghed",text:"Straffen for personfarlig kriminalitet (fx voldtægt og grov vold) bør skærpes.",defaultWeight:1},
+{ id:"q30",topic:"Retspolitik og tryghed",text:"Sociale medier bør reguleres strengere for at beskytte børn og unge mod skadeligt indhold.",defaultWeight:1},
 ];
 
 // Canonical storkredse -- keep in sync with storkredse.js
@@ -186,10 +52,10 @@ const MUNICIPALITIES = [
   "Sydjylland", "Vestjylland", "Østjylland",
 ];
 
-const DEFAULT_CSV = `id,name,party,area,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20,q21,q22,q23,q24,q25
-c1,Kandidat A,Parti X,København,2,2,1,1,2,2,2,1,2,1,1,2,2,1,2,1,2,0,1,1,2,1,2,2,2
-c2,Kandidat B,Parti Y,København,0,1,0,-1,1,0,1,0,1,2,0,0,1,1,0,0,1,2,0,2,0,-1,1,1,1
-c3,Kandidat C,Parti Z,Østjylland,-1,0,1,2,1,1,1,2,0,-1,2,2,1,0,1,2,1,-1,1,0,2,1,2,2,1`;
+const DEFAULT_CSV = `id,name,party,area,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q19,q20,q21,q22,q23,q24,q25,q26,q27,q28,q29,q30
+c1,Kandidat A,Parti X,København,2,2,1,1,2,2,2,1,2,1,1,2,2,1,2,1,2,0,1,1,2,1,2,2,2,1,1,2,1
+c2,Kandidat B,Parti Y,København,0,1,0,-1,1,0,1,0,1,2,0,0,1,1,0,0,1,2,0,2,0,-1,1,1,1,0,1,-1,0
+c3,Kandidat C,Parti Z,Østjylland,-1,0,1,2,1,1,1,2,0,-1,2,2,1,0,1,2,1,-1,1,0,2,1,2,2,1,1,0,1,2`;
 
 export default function KandidattestFramerManhattan({
   title,
