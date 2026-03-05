@@ -52,8 +52,11 @@ BEGIN
 END;
 $$;
 
--- 4. RPC: update candidate profile fields (for candidates with missing data)
-CREATE OR REPLACE FUNCTION update_candidate_profile(p_token TEXT, p_name TEXT, p_party TEXT, p_area TEXT)
+-- 4. Photo consent column on candidates
+ALTER TABLE candidates ADD COLUMN IF NOT EXISTS photo_consent BOOLEAN NOT NULL DEFAULT false;
+
+-- 5. RPC: update candidate profile fields (for candidates with missing data)
+CREATE OR REPLACE FUNCTION update_candidate_profile(p_token TEXT, p_name TEXT, p_party TEXT, p_area TEXT, p_photo_consent BOOLEAN DEFAULT false)
 RETURNS VOID
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -72,7 +75,8 @@ BEGIN
   UPDATE candidates
   SET name  = COALESCE(NULLIF(p_name, ''), name),
       party = COALESCE(NULLIF(p_party, ''), party),
-      area  = COALESCE(NULLIF(p_area, ''), area)
+      area  = COALESCE(NULLIF(p_area, ''), area),
+      photo_consent = p_photo_consent
   WHERE id = cid;
 END;
 $$;

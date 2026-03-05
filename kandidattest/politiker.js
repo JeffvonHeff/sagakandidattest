@@ -191,6 +191,13 @@
     html += "</section>";
 
     html +=
+      '<section class="card">' +
+      '<label style="display:flex;gap:8px;align-items:start;cursor:pointer">' +
+      '<input type="checkbox" id="acceptPhoto" checked style="margin-top:3px" />' +
+      '<span>Jeg accepterer, at I bruger billedet fra mit partis officielle hjemmeside til denne test</span>' +
+      "</label></section>";
+
+    html +=
       '<div style="margin:18px 0">' +
       '<button type="submit" id="btnSubmit" class="btn primary" style="width:100%;padding:14px">' +
       "Indsend svar</button></div>" +
@@ -262,6 +269,7 @@
     var name = document.getElementById("pName").value.trim();
     var party = document.getElementById("pParty").value.trim();
     var area = document.getElementById("pArea").value.trim();
+    var photoConsent = document.getElementById("acceptPhoto").checked;
 
     if (!name || !party) {
       statusEl.innerHTML = '<div class="status err">Udfyld venligst alle påkrævede felter.</div>';
@@ -281,24 +289,18 @@
     statusEl.innerHTML = '<div class="status">Gemmer&hellip;</div>';
 
     try {
-      var profileChanged =
-        name !== (candidate.name || "") ||
-        party !== (candidate.party || "") ||
-        area !== (candidate.area || "");
-
-      if (profileChanged) {
-        var profRes = await fetch(API + "/rpc/update_candidate_profile", {
-          method: "POST",
-          headers: HEADERS,
-          body: JSON.stringify({
-            p_token: currentToken,
-            p_name: name,
-            p_party: party,
-            p_area: area,
-          }),
-        });
-        if (!profRes.ok) throw new Error("Profil-fejl: " + (await profRes.text()));
-      }
+      var profRes = await fetch(API + "/rpc/update_candidate_profile", {
+        method: "POST",
+        headers: HEADERS,
+        body: JSON.stringify({
+          p_token: currentToken,
+          p_name: name,
+          p_party: party,
+          p_area: area,
+          p_photo_consent: photoConsent,
+        }),
+      });
+      if (!profRes.ok) throw new Error("Profil-fejl: " + (await profRes.text()));
 
       // Collect stance texts from textareas
       questions.forEach(function (q) {
