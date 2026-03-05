@@ -566,7 +566,7 @@ function scoreAllCandidates(candidates, responses, questions) {
         if (candidateValue === null || candidateValue === undefined) continue;
 
         comparable.push({
-          weight: clampInt(user.weight || 1, 1, 3),
+          weight: clampInt(user.weight || q.defaultWeight || 1, 1, 3),
           userValue: Number(user.value),
           candidateValue: Number(candidateValue),
         });
@@ -594,8 +594,6 @@ function scoreAllCandidates(candidates, responses, questions) {
     })
     .sort((a, b) => b.pct - a.pct || a.distance - b.distance);
 }
-
-
 const rangeStyles = `
   .weight-range {
     -webkit-appearance: none;
@@ -640,7 +638,6 @@ const rangeStyles = `
     cursor: pointer;
   }
 `;
-
 const s = {
   root: {
     fontFamily: "Inter, system-ui, sans-serif",

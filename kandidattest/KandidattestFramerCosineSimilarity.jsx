@@ -278,10 +278,9 @@ export default function KandidattestFramerCosineSimilarity({
   const answerCurrent = (value) => {
     if (!question) return;
 
-    const response = responses[question.id] || { value: null, weight: 2 };
     const nextResponses = {
       ...responses,
-      [question.id]: { ...response, value },
+      [question.id]: value,
     };
     setResponses(nextResponses);
 
@@ -291,21 +290,6 @@ export default function KandidattestFramerCosineSimilarity({
       setScreen("result");
     }
   };
-
-  const updateCurrentWeight = (value) => {
-    if (!question) return;
-
-    const response = responses[question.id] || { value: null, weight: 2 };
-    setResponses({
-      ...responses,
-      [question.id]: {
-        ...response,
-        weight: clampInt(value, 1, 3),
-      },
-    });
-  };
-
-  const currentWeight = clampInt(responses[question?.id]?.weight ?? 2, 1, 3);
 
   const skipCurrent = () => answerCurrent(null);
 
@@ -324,7 +308,6 @@ export default function KandidattestFramerCosineSimilarity({
 
   return (
     <div style={s.root}>
-      <style>{rangeStyles}</style>
       <h2 style={s.title}>{title}</h2>
 
       {screen === "start" && (
@@ -378,24 +361,6 @@ export default function KandidattestFramerCosineSimilarity({
             <p style={s.explain}>{question.explain}</p>
           )}
 
-          <div style={s.weightWrap}>
-            <div style={s.meta}>Er dette udsagn vigtigt for dig?</div>
-            <input
-              className="weight-range"
-              type="range"
-              min={1}
-              max={3}
-              step={1}
-              value={currentWeight}
-              onChange={(e) => updateCurrentWeight(e.target.value)}
-              style={s.weightRange}
-            />
-            <div style={s.weightLabels}>
-              <span>Nej</span>
-              <strong>Både og</strong>
-              <span>Ja</span>
-            </div>
-          </div>
 
           <div style={s.grid}>
             {[
@@ -540,13 +505,6 @@ function splitCsvLine(line) {
   cells.push(cur);
   return cells.map((x) => x.trim());
 }
-
-function clampInt(v, min, max) {
-  const n = Number(v);
-  if (!Number.isFinite(n)) return min;
-  return Math.max(min, Math.min(max, Math.trunc(n)));
-}
-
 function filterCandidatesByArea(candidates, area) {
   const normalized = (area || "").trim().toLowerCase();
   if (!normalized) return candidates;
@@ -560,13 +518,13 @@ function scoreAllCandidates(candidates, responses, questions) {
     .map((candidate) => {
       const comparable = [];
       for (const q of questions) {
-        const user = responses[q.id];
-        if (!user || user.value === null || user.value === undefined) continue;
+        const userValue = responses[q.id];
+        if (userValue === null || userValue === undefined) continue;
         const candidateValue = candidate.answers[q.id];
         if (candidateValue === null || candidateValue === undefined) continue;
 
         comparable.push({
-          userValue: Number(user.value),
+          userValue: Number(userValue),
           candidateValue: Number(candidateValue),
         });
       }
@@ -598,51 +556,6 @@ function cosineSimilarity(rows) {
   return denominator ? numerator / denominator : 0;
 }
 
-
-const rangeStyles = `
-  .weight-range {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 8px;
-    border-radius: 999px;
-    background: #111;
-    outline: none;
-  }
-
-  .weight-range::-webkit-slider-runnable-track {
-    height: 8px;
-    border-radius: 999px;
-    background: #111;
-  }
-
-  .weight-range::-moz-range-track {
-    height: 8px;
-    border-radius: 999px;
-    background: #111;
-  }
-
-  .weight-range::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    margin-top: -4px;
-    width: 16px;
-    height: 16px;
-    border-radius: 999px;
-    border: 2px solid #111;
-    background: #fff;
-    cursor: pointer;
-  }
-
-  .weight-range::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 999px;
-    border: 2px solid #111;
-    background: #fff;
-    cursor: pointer;
-  }
-`;
 
 const s = {
   root: {
@@ -694,15 +607,6 @@ const s = {
     borderRadius: 10,
     padding: 10,
   },
-  weightWrap: { display: "grid", gap: 6 },
-  weightRange: { width: "100%" },
-  weightLabels: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: 12,
-    color: "#666",
-    gap: 8,
-  },
   grid: {
     display: "grid",
     gap: 8,
@@ -752,3 +656,6 @@ addPropertyControls(KandidattestFramerCosineSimilarity, {
     displayTextArea: true,
   },
 });
+
+
+
