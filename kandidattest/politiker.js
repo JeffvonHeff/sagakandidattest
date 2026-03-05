@@ -192,8 +192,8 @@
 
     html +=
       '<section class="card">' +
-      '<label style="display:flex;gap:8px;align-items:start;cursor:pointer">' +
-      '<input type="checkbox" id="acceptPhoto" checked style="margin-top:3px" />' +
+      '<label class="consent-label">' +
+      '<input type="checkbox" id="acceptPhoto" checked />' +
       '<span>Jeg accepterer, at I bruger billedet fra mit partis officielle hjemmeside til denne test</span>' +
       "</label></section>";
 

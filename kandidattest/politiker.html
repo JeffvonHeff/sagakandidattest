@@ -22,6 +22,16 @@
     .profile-field { margin-bottom: 8px; }
     .profile-field span { font-weight: 600; }
     .profile-field input[readonly] { background: var(--bg); opacity: .75; }
+    .consent-label {
+      display: flex; gap: 12px; align-items: flex-start; cursor: pointer;
+      font-size: .95rem; line-height: 1.4; color: var(--text);
+    }
+    .consent-label input[type="checkbox"] {
+      width: auto; padding: 0; border-radius: 4px;
+      flex-shrink: 0; margin-top: 2px;
+      width: 20px; height: 20px; accent-color: var(--accent);
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
