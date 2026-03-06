@@ -57,7 +57,7 @@ c1,Kandidat A,Parti X,København,2,2,1,1,2,2,2,1,2,1,1,2,2,1,2,1,2,0,1,1,2,1,2,2
 c2,Kandidat B,Parti Y,København,0,1,0,-1,1,0,1,0,1,2,0,0,1,1,0,0,1,2,0,2,0,-1,1,1,1,0,1,-1,0
 c3,Kandidat C,Parti Z,Østjylland,-1,0,1,2,1,1,1,2,0,-1,2,2,1,0,1,2,1,-1,1,0,2,1,2,2,1,1,0,1,2`;
 
-export default function KandidattestFramer({
+export default function KandidattestFramerManhattan({
   title,
   supabaseUrl,
   supabaseAnonKey,
@@ -227,6 +227,7 @@ export default function KandidattestFramer({
             <p style={s.explain}>{question.explain}</p>
           )}
 
+
           <div style={s.grid}>
             {[
               { label: "Helt uenig", value: -2 },
@@ -394,32 +395,25 @@ function scoreAllCandidates(candidates, responses, questions) {
         });
       }
 
-      const similarity = cosineSimilarity(comparable);
+      const distance = comparable.reduce(
+        (sum, row) => sum + Math.abs(row.userValue - row.candidateValue),
+        0,
+      );
+      const maxDistance = comparable.length * 4;
+      const pct = maxDistance
+        ? Math.round(((maxDistance - distance) / maxDistance) * 100)
+        : 0;
+
       return {
         candidate,
         compared: comparable.length,
-        pct: Math.round(50 * (Math.max(-1, Math.min(1, similarity)) + 1)),
+        distance,
+        pct,
       };
     })
-    .sort((a, b) => b.pct - a.pct);
+    .sort((a, b) => b.pct - a.pct || a.distance - b.distance);
 }
 
-function cosineSimilarity(rows) {
-  if (!rows.length) return 0;
-
-  let numerator = 0;
-  let userNormSq = 0;
-  let candidateNormSq = 0;
-
-  for (const row of rows) {
-    numerator += row.userValue * row.candidateValue;
-    userNormSq += row.userValue * row.userValue;
-    candidateNormSq += row.candidateValue * row.candidateValue;
-  }
-
-  const denominator = Math.sqrt(userNormSq) * Math.sqrt(candidateNormSq);
-  return denominator ? numerator / denominator : 0;
-}
 
 const s = {
   root: {
@@ -488,7 +482,7 @@ const s = {
   resultItem: { border: "1px solid #e7e7e7", borderRadius: 12, padding: 12 },
 };
 
-KandidattestFramer.defaultProps = {
+KandidattestFramerManhattan.defaultProps = {
   title: "Kandidattest",
   supabaseUrl: "",
   supabaseAnonKey: "",
@@ -496,7 +490,7 @@ KandidattestFramer.defaultProps = {
   showExplanationsByDefault: false,
 };
 
-addPropertyControls(KandidattestFramer, {
+addPropertyControls(KandidattestFramerManhattan, {
   title: { type: ControlType.String, title: "Titel" },
   supabaseUrl: {
     type: ControlType.String,

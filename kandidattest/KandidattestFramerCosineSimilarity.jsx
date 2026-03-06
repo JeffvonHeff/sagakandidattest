@@ -57,7 +57,7 @@ c1,Kandidat A,Parti X,København,2,2,1,1,2,2,2,1,2,1,1,2,2,1,2,1,2,0,1,1,2,1,2,2
 c2,Kandidat B,Parti Y,København,0,1,0,-1,1,0,1,0,1,2,0,0,1,1,0,0,1,2,0,2,0,-1,1,1,1,0,1,-1,0
 c3,Kandidat C,Parti Z,Østjylland,-1,0,1,2,1,1,1,2,0,-1,2,2,1,0,1,2,1,-1,1,0,2,1,2,2,1,1,0,1,2`;
 
-export default function KandidattestFramer({
+export default function KandidattestFramerCosineSimilarity({
   title,
   supabaseUrl,
   supabaseAnonKey,
@@ -226,6 +226,7 @@ export default function KandidattestFramer({
           {showExplain && !!question.explain && (
             <p style={s.explain}>{question.explain}</p>
           )}
+
 
           <div style={s.grid}>
             {[
@@ -421,6 +422,7 @@ function cosineSimilarity(rows) {
   return denominator ? numerator / denominator : 0;
 }
 
+
 const s = {
   root: {
     fontFamily: "Inter, system-ui, sans-serif",
@@ -488,7 +490,7 @@ const s = {
   resultItem: { border: "1px solid #e7e7e7", borderRadius: 12, padding: 12 },
 };
 
-KandidattestFramer.defaultProps = {
+KandidattestFramerCosineSimilarity.defaultProps = {
   title: "Kandidattest",
   supabaseUrl: "",
   supabaseAnonKey: "",
@@ -496,7 +498,7 @@ KandidattestFramer.defaultProps = {
   showExplanationsByDefault: false,
 };
 
-addPropertyControls(KandidattestFramer, {
+addPropertyControls(KandidattestFramerCosineSimilarity, {
   title: { type: ControlType.String, title: "Titel" },
   supabaseUrl: {
     type: ControlType.String,

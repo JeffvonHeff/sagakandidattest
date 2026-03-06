@@ -15,107 +15,10 @@
     "Content-Type": "application/json",
   };
 
-  var MUNICIPALITIES = [
-    "Albertslund",
-    "Allerød",
-    "Assens",
-    "Ballerup",
-    "Billund",
-    "Bornholm",
-    "Brøndby",
-    "Brønderslev",
-    "Dragør",
-    "Egedal",
-    "Esbjerg",
-    "Fanø",
-    "Favrskov",
-    "Faxe",
-    "Fredensborg",
-    "Fredericia",
-    "Frederiksberg",
-    "Frederikshavn",
-    "Frederikssund",
-    "Furesø",
-    "Faaborg-Midtfyn",
-    "Gentofte",
-    "Gladsaxe",
-    "Glostrup",
-    "Greve",
-    "Gribskov",
-    "Guldborgsund",
-    "Haderslev",
-    "Halsnæs",
-    "Hedensted",
-    "Helsingør",
-    "Herlev",
-    "Herning",
-    "Hillerød",
-    "Hjørring",
-    "Holbæk",
-    "Holstebro",
-    "Horsens",
-    "Hvidovre",
-    "Høje-Taastrup",
-    "Hørsholm",
-    "Ikast-Brande",
-    "Ishøj",
-    "Jammerbugt",
-    "Kalundborg",
-    "Kerteminde",
-    "Kolding",
-    "København",
-    "Køge",
-    "Langeland",
-    "Lejre",
-    "Lemvig",
-    "Lolland",
-    "Lyngby-Taarbæk",
-    "Læsø",
-    "Mariagerfjord",
-    "Middelfart",
-    "Morsø",
-    "Norddjurs",
-    "Nordfyns",
-    "Nyborg",
-    "Næstved",
-    "Odder",
-    "Odense",
-    "Odsherred",
-    "Randers",
-    "Rebild",
-    "Ringkøbing-Skjern",
-    "Ringsted",
-    "Roskilde",
-    "Rudersdal",
-    "Rødovre",
-    "Samsø",
-    "Silkeborg",
-    "Skanderborg",
-    "Skive",
-    "Slagelse",
-    "Solrød",
-    "Sorø",
-    "Stevns",
-    "Struer",
-    "Svendborg",
-    "Syddjurs",
-    "Sønderborg",
-    "Thisted",
-    "Tårnby",
-    "Tønder",
-    "Vallensbæk",
-    "Varde",
-    "Vejen",
-    "Vejle",
-    "Vesthimmerlands",
-    "Viborg",
-    "Vordingborg",
-    "Ærø",
-    "Aabenraa",
-    "Aalborg",
-    "Aarhus",
-  ];
+  var STORKREDSE = (window.STORKREDS_DATA || {}).STORKREDSE || [];
 
+  var candidate = null;
+  var currentToken = "";
   var answers = {};
   var questions = [];
 
@@ -131,34 +34,117 @@
     });
   }
 
-  function render() {
+  /* ── Token screen ─────────────────────────────────────── */
+
+  function renderTokenScreen(error) {
+    var html =
+      '<section class="card">' +
+      "<h2>Indtast dit token</h2>" +
+      '<p class="muted">Du har modtaget et unikt token pr. e-mail. Indtast det herunder for at besvare kandidattesten.</p>' +
+      '<div style="display:flex;gap:8px;align-items:start;margin-top:12px">' +
+      '<input id="tokenInput" type="text" placeholder="F.eks. F26EOF" style="flex:1;text-transform:uppercase" autocomplete="off" />' +
+      '<button type="button" id="btnVerify" class="btn primary">Bekræft</button>' +
+      "</div>";
+
+    if (error) {
+      html += '<div class="status err" style="margin-top:12px">' + escapeHtml(error) + "</div>";
+    }
+
+    html += "</section>";
+    document.getElementById("app").innerHTML = html;
+
+    document.getElementById("btnVerify").addEventListener("click", verifyToken);
+    document.getElementById("tokenInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") verifyToken();
+    });
+    document.getElementById("tokenInput").focus();
+  }
+
+  async function verifyToken() {
+    var input = document.getElementById("tokenInput");
+    var token = input.value.trim().toUpperCase();
+    if (!token) return;
+
+    var btn = document.getElementById("btnVerify");
+    btn.disabled = true;
+    btn.textContent = "Tjekker\u2026";
+
+    try {
+      var res = await fetch(API + "/rpc/verify_candidate_token", {
+        method: "POST",
+        headers: HEADERS,
+        body: JSON.stringify({ p_token: token }),
+      });
+
+      if (!res.ok) throw new Error("HTTP " + res.status);
+
+      var data = await res.json();
+
+      if (data.error === "invalid_token") {
+        renderTokenScreen("Ugyldigt token. Tjek at du har indtastet det korrekt.");
+        return;
+      }
+
+      candidate = data;
+      currentToken = token;
+
+      await loadQuestions();
+
+      if (candidate.already_submitted) {
+        await loadExistingAnswers(candidate.id);
+      }
+
+      renderForm();
+    } catch (err) {
+      console.error(err);
+      renderTokenScreen("Noget gik galt: " + err.message);
+    }
+  }
+
+  /* ── Data loading ─────────────────────────────────────── */
+
+  async function loadQuestions() {
+    var res = await fetch(API + "/questions?order=sort_order", { headers: HEADERS });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    questions = await res.json();
+  }
+
+  async function loadExistingAnswers(candidateId) {
+    var res = await fetch(
+      API + "/candidate_answers?candidate_id=eq." + candidateId,
+      { headers: HEADERS }
+    );
+    if (!res.ok) return;
+    var rows = await res.json();
+    rows.forEach(function (r) {
+      answers[r.question_id] = { value: r.value, stance: r.stance || "" };
+    });
+  }
+
+  /* ── Questionnaire form ───────────────────────────────── */
+
+  function renderForm() {
     var app = document.getElementById("app");
 
     if (!questions.length) {
       app.innerHTML =
-        '<div class="bg-surface border border-border rounded-2xl p-5 my-4 shadow-lg"><p class="text-muted">Ingen spørgsmål i databasen endnu. ' +
+        '<div class="card"><p class="muted">Ingen spørgsmål i databasen endnu. ' +
         "Kør <code>npm run seed</code> først.</p></div>";
       return;
     }
 
     var html = '<form id="politikerForm">';
 
-    html +=
-      '<section class="bg-surface border border-border rounded-2xl p-5 my-4 shadow-lg">' +
-      "<h2>Dine oplysninger</h2>" +
-      '<div class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3 my-4">' +
-      '<label class="block"><span class="block mb-2 text-muted text-sm">Fulde navn *</span>' +
-      '<input id="pName" type="text" required placeholder="Fornavn Efternavn" class="w-full p-3 rounded-2xl border border-border bg-white text-text outline-none focus:ring-[3px] focus:ring-accent/45" /></label>' +
-      '<label class="block"><span class="block mb-2 text-muted text-sm">Parti *</span>' +
-      '<input id="pParty" type="text" required placeholder="Partinavn" class="w-full p-3 rounded-2xl border border-border bg-white text-text outline-none focus:ring-[3px] focus:ring-accent/45" /></label>' +
-      '<label class="block"><span class="block mb-2 text-muted text-sm">Kommune *</span>' +
-      '<input id="pArea" type="text" list="munList" required placeholder="Vælg kommune" class="w-full p-3 rounded-2xl border border-border bg-white text-text outline-none focus:ring-[3px] focus:ring-accent/45" />' +
-      '<datalist id="munList">' +
-      MUNICIPALITIES.map(function (m) {
-        return '<option value="' + m + '">';
-      }).join("") +
-      "</datalist></label>" +
-      "</div></section>";
+    if (candidate.already_submitted) {
+      html +=
+        '<div class="status info">Du har allerede indsendt svar. Du kan opdatere dem herunder.</div>';
+    }
+
+    html += '<section class="card"><h2>Dine oplysninger</h2><div class="grid">';
+    html += profileField("Navn", "pName", candidate.name);
+    html += profileField("Parti", "pParty", candidate.party);
+    html += areaField(candidate.area);
+    html += "</div></section>";
 
     html +=
       '<section class="bg-surface border border-border rounded-2xl p-5 my-4 shadow-lg"><h2>Udsagn</h2>' +
@@ -174,16 +160,14 @@
     ];
 
     questions.forEach(function (q, i) {
+      var existing = answers[q.id];
+
       html +=
-        '<div class="mt-4 pt-4 border-t border-border first:border-t-0 first:mt-0">' +
-        '<div class="flex flex-wrap gap-3 items-center justify-between"><strong>' +
-        (i + 1) +
-        ". " +
-        escapeHtml(q.text) +
+        '<div class="q-block">' +
+        '<div class="row space"><strong>' +
+        (i + 1) + ". " + escapeHtml(q.text) +
         "</strong>" +
-        '<span class="text-muted text-sm">' +
-        escapeHtml(q.topic) +
-        "</span></div>";
+        '<span class="muted small">' + escapeHtml(q.topic) + "</span></div>";
 
       if (q.explain) {
         html +=
@@ -195,52 +179,80 @@
       html +=
         '<div class="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-2.5 mt-2">';
       opts.forEach(function (o) {
+        var sel = existing && existing.value === o.value ? " selected" : "";
         html +=
-          '<button type="button" class="bg-surface text-text border border-border shadow-md rounded-2xl py-2.5 px-3.5 cursor-pointer font-semibold transition hover:bg-accent/20 hover:border-black/30 btn-ans" data-qid="' +
-          q.id +
-          '" data-value="' +
-          o.value +
-          '">' +
-          o.label +
-          "</button>";
+          '<button type="button" class="btn ans' + sel + '" data-qid="' +
+          q.id + '" data-value="' + o.value + '">' + o.label + "</button>";
       });
       html += "</div>";
 
       html +=
-        '<div class="mt-2">' +
-        '<textarea id="stance-' +
-        q.id +
-        '" placeholder="Begrundelse (valgfrit)" rows="1" class="w-full py-2.5 px-3 rounded-2xl border border-border resize-y min-h-10 bg-white text-text outline-none focus:ring-[3px] focus:ring-accent/45"></textarea>' +
-        "</div></div>";
+        '<div style="margin-top:8px">' +
+        '<textarea id="stance-' + q.id +
+        '" placeholder="Begrundelse (valgfrit)" rows="1">' +
+        escapeHtml(existing ? existing.stance : "") +
+        "</textarea></div></div>";
+
+      if (existing) {
+        answers[q.id] = existing;
+      }
     });
 
     html += "</section>";
 
     html +=
-      '<div class="my-4">' +
-      '<button type="submit" id="btnSubmit" class="w-full py-3.5 rounded-full cursor-pointer font-semibold border border-border bg-accent text-text border-black/20 hover:bg-[#ffd900] transition disabled:opacity-55 disabled:cursor-not-allowed">' +
+      '<section class="card">' +
+      '<label class="consent-label">' +
+      '<input type="checkbox" id="acceptPhoto" checked />' +
+      '<span>Jeg accepterer, at I bruger billedet fra mit partis officielle hjemmeside til denne test</span>' +
+      "</label></section>";
+
+    html +=
+      '<div style="margin:18px 0">' +
+      '<button type="submit" id="btnSubmit" class="btn primary" style="width:100%;padding:14px">' +
       "Indsend svar</button></div>" +
       '<div id="status"></div></form>';
 
     app.innerHTML = html;
-    bindEvents();
+    bindFormEvents();
+  }
+
+  function profileField(label, id, value) {
+    var readonly = value ? " readonly" : "";
+    return (
+      '<label class="field profile-field"><span>' + escapeHtml(label) + "</span>" +
+      '<input id="' + id + '" type="text" value="' + escapeHtml(value || "") + '"' +
+      readonly + " /></label>"
+    );
+  }
+
+  function areaField(value) {
+    if (value) {
+      return (
+        '<label class="field profile-field"><span>Storkreds</span>' +
+        '<input id="pArea" type="text" value="' + escapeHtml(value) + '" readonly /></label>'
+      );
+    }
+    return (
+      '<label class="field profile-field"><span>Storkreds</span>' +
+      '<input id="pArea" type="text" list="storkedsList" placeholder="Vælg storkreds" />' +
+      '<datalist id="storkedsList">' +
+      STORKREDSE.map(function (s) { return '<option value="' + s + '">'; }).join("") +
+      "</datalist></label>"
+    );
   }
 
   function selectAnswer(qid, value) {
-    answers[qid] = value;
-    document
-      .querySelectorAll('[data-qid="' + qid + '"]')
-      .forEach(function (btn) {
-        var selected = Number(btn.dataset.value) === value;
-        btn.classList.toggle("bg-accent", selected);
-        btn.classList.toggle("border-black/30", selected);
-        btn.classList.toggle("bg-surface", !selected);
-        btn.classList.toggle("border-border", !selected);
-      });
+    if (!answers[qid]) answers[qid] = { value: value, stance: "" };
+    else answers[qid].value = value;
+
+    document.querySelectorAll('[data-qid="' + qid + '"]').forEach(function (btn) {
+      btn.classList.toggle("selected", Number(btn.dataset.value) === value);
+    });
   }
 
-  function bindEvents() {
-    document.querySelectorAll(".btn-ans[data-qid]").forEach(function (btn) {
+  function bindFormEvents() {
+    document.querySelectorAll(".btn.ans[data-qid]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         selectAnswer(btn.dataset.qid, Number(btn.dataset.value));
       });
@@ -262,20 +274,22 @@
     }
   }
 
+  /* ── Submit ───────────────────────────────────────────── */
+
   async function submitForm() {
+    var statusEl = document.getElementById("status");
     var name = document.getElementById("pName").value.trim();
     var party = document.getElementById("pParty").value.trim();
     var area = document.getElementById("pArea").value.trim();
-    var statusEl = document.getElementById("status");
+    var photoConsent = document.getElementById("acceptPhoto").checked;
 
-    if (!name || !party || !area) {
-      statusEl.innerHTML =
-        '<div class="p-3.5 rounded-2xl my-4 bg-red-100 text-red-800 border border-red-200">Udfyld venligst navn, parti og kommune.</div>';
+    if (!name || !party) {
+      statusEl.innerHTML = '<div class="status err">Udfyld venligst alle påkrævede felter.</div>';
       return;
     }
 
     var unanswered = questions.filter(function (q) {
-      return answers[q.id] === undefined;
+      return !answers[q.id] || answers[q.id].value === undefined;
     });
     if (unanswered.length) {
       statusEl.innerHTML =
@@ -290,27 +304,33 @@
       '<div class="p-3.5 rounded-2xl my-4">Gemmer&hellip;</div>';
 
     try {
-      var candRes = await fetch(API + "/candidates", {
+      var profRes = await fetch(API + "/rpc/update_candidate_profile", {
         method: "POST",
-        headers: Object.assign({}, HEADERS, {
-          Prefer: "resolution=merge-duplicates,return=representation",
+        headers: HEADERS,
+        body: JSON.stringify({
+          p_token: currentToken,
+          p_name: name,
+          p_party: party,
+          p_area: area,
+          p_photo_consent: photoConsent,
         }),
-        body: JSON.stringify({ name: name, party: party, area: area }),
       });
+      if (!profRes.ok) throw new Error("Profil-fejl: " + (await profRes.text()));
 
-      if (!candRes.ok) {
-        throw new Error("Kandidat-fejl: " + (await candRes.text()));
-      }
-
-      var rows = await candRes.json();
-      var candidateId = rows[0].id;
+      // Collect stance texts from textareas
+      questions.forEach(function (q) {
+        var ta = document.getElementById("stance-" + q.id);
+        if (ta && answers[q.id]) {
+          answers[q.id].stance = ta.value || "";
+        }
+      });
 
       var answerRows = questions.map(function (q) {
         return {
-          candidate_id: candidateId,
+          candidate_id: candidate.id,
           question_id: q.id,
-          value: answers[q.id],
-          stance: (document.getElementById("stance-" + q.id) || {}).value || "",
+          value: answers[q.id].value,
+          stance: answers[q.id].stance || "",
         };
       });
 
@@ -322,14 +342,19 @@
         body: JSON.stringify(answerRows),
       });
 
-      if (!ansRes.ok) {
-        throw new Error("Svar-fejl: " + (await ansRes.text()));
-      }
+      if (!ansRes.ok) throw new Error("Svar-fejl: " + (await ansRes.text()));
+
+      await fetch(API + "/rpc/mark_token_used", {
+        method: "POST",
+        headers: HEADERS,
+        body: JSON.stringify({ p_token: currentToken }),
+      });
 
       statusEl.innerHTML =
-        '<div class="p-3.5 rounded-2xl my-4 bg-green-100 text-green-800 border border-green-200"><strong>Tak!</strong> Dine svar er gemt. ' +
-        "Du kan lukke denne side.</div>";
+        '<div class="status ok"><strong>Tak!</strong> Dine svar er gemt. ' +
+        "Du kan lukke denne side eller opdatere dine svar.</div>";
       setSubmitting(false);
+      candidate.already_submitted = true;
     } catch (err) {
       console.error(err);
       statusEl.innerHTML =
@@ -340,18 +365,7 @@
     }
   }
 
-  async function init() {
-    try {
-      var res = await fetch(API + "/questions?order=sort_order", {
-        headers: HEADERS,
-      });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      questions = await res.json();
-    } catch (err) {
-      console.error("Kunne ikke hente spørgsmål:", err);
-    }
-    render();
-  }
+  /* ── Init ─────────────────────────────────────────────── */
 
-  init();
+  renderTokenScreen();
 })();

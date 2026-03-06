@@ -6,6 +6,8 @@
     "seed": "node seed.js",
     "build:css": "npx @tailwindcss/cli -i ./kandidattest/input.css -o ./kandidattest/tailwind.css",
     "watch:css": "npx @tailwindcss/cli -i ./kandidattest/input.css -o ./kandidattest/tailwind.css --watch"
+    "build": "echo 'Static site – no build step'",
+    "seed:candidates": "node seed-candidates.js"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.2.1",

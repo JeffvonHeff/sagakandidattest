@@ -57,7 +57,7 @@ c1,Kandidat A,Parti X,København,2,2,1,1,2,2,2,1,2,1,1,2,2,1,2,1,2,0,1,1,2,1,2,2
 c2,Kandidat B,Parti Y,København,0,1,0,-1,1,0,1,0,1,2,0,0,1,1,0,0,1,2,0,2,0,-1,1,1,1,0,1,-1,0
 c3,Kandidat C,Parti Z,Østjylland,-1,0,1,2,1,1,1,2,0,-1,2,2,1,0,1,2,1,-1,1,0,2,1,2,2,1,1,0,1,2`;
 
-export default function KandidattestFramer({
+export default function KandidattestFramerWeightedManhattan({
   title,
   supabaseUrl,
   supabaseAnonKey,
@@ -144,9 +144,10 @@ export default function KandidattestFramer({
   const answerCurrent = (value) => {
     if (!question) return;
 
+    const response = responses[question.id] || { value: null, weight: 2 };
     const nextResponses = {
       ...responses,
-      [question.id]: value,
+      [question.id]: { ...response, value },
     };
     setResponses(nextResponses);
 
@@ -156,6 +157,21 @@ export default function KandidattestFramer({
       setScreen("result");
     }
   };
+
+  const updateCurrentWeight = (value) => {
+    if (!question) return;
+
+    const response = responses[question.id] || { value: null, weight: 2 };
+    setResponses({
+      ...responses,
+      [question.id]: {
+        ...response,
+        weight: clampInt(value, 1, 3),
+      },
+    });
+  };
+
+  const currentWeight = clampInt(responses[question?.id]?.weight ?? 2, 1, 3);
 
   const skipCurrent = () => answerCurrent(null);
 
@@ -174,6 +190,7 @@ export default function KandidattestFramer({
 
   return (
     <div style={s.root}>
+      <style>{rangeStyles}</style>
       <h2 style={s.title}>{title}</h2>
 
       {screen === "start" && (
@@ -226,6 +243,25 @@ export default function KandidattestFramer({
           {showExplain && !!question.explain && (
             <p style={s.explain}>{question.explain}</p>
           )}
+
+          <div style={s.weightWrap}>
+            <div style={s.meta}>Er dette udsagn vigtigt for dig?</div>
+            <input
+              className="weight-range"
+              type="range"
+              min={1}
+              max={3}
+              step={1}
+              value={currentWeight}
+              onChange={(e) => updateCurrentWeight(e.target.value)}
+              style={s.weightRange}
+            />
+            <div style={s.weightLabels}>
+              <span>Nej</span>
+              <strong>Både og</strong>
+              <span>Ja</span>
+            </div>
+          </div>
 
           <div style={s.grid}>
             {[
@@ -370,6 +406,13 @@ function splitCsvLine(line) {
   cells.push(cur);
   return cells.map((x) => x.trim());
 }
+
+function clampInt(v, min, max) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return min;
+  return Math.max(min, Math.min(max, Math.trunc(n)));
+}
+
 function filterCandidatesByArea(candidates, area) {
   const normalized = (area || "").trim().toLowerCase();
   if (!normalized) return candidates;
@@ -383,44 +426,84 @@ function scoreAllCandidates(candidates, responses, questions) {
     .map((candidate) => {
       const comparable = [];
       for (const q of questions) {
-        const userValue = responses[q.id];
-        if (userValue === null || userValue === undefined) continue;
+        const user = responses[q.id];
+        if (!user || user.value === null || user.value === undefined) continue;
         const candidateValue = candidate.answers[q.id];
         if (candidateValue === null || candidateValue === undefined) continue;
 
         comparable.push({
-          userValue: Number(userValue),
+          weight: clampInt(user.weight || q.defaultWeight || 1, 1, 3),
+          userValue: Number(user.value),
           candidateValue: Number(candidateValue),
         });
       }
 
-      const similarity = cosineSimilarity(comparable);
+      const distance = comparable.reduce(
+        (sum, row) =>
+          sum + Math.abs(row.userValue - row.candidateValue) * row.weight,
+        0,
+      );
+      const maxDistance = comparable.reduce(
+        (sum, row) => sum + 4 * row.weight,
+        0,
+      );
+      const pct = maxDistance
+        ? Math.round(((maxDistance - distance) / maxDistance) * 100)
+        : 0;
+
       return {
         candidate,
         compared: comparable.length,
-        pct: Math.round(50 * (Math.max(-1, Math.min(1, similarity)) + 1)),
+        distance,
+        pct,
       };
     })
-    .sort((a, b) => b.pct - a.pct);
+    .sort((a, b) => b.pct - a.pct || a.distance - b.distance);
 }
-
-function cosineSimilarity(rows) {
-  if (!rows.length) return 0;
-
-  let numerator = 0;
-  let userNormSq = 0;
-  let candidateNormSq = 0;
-
-  for (const row of rows) {
-    numerator += row.userValue * row.candidateValue;
-    userNormSq += row.userValue * row.userValue;
-    candidateNormSq += row.candidateValue * row.candidateValue;
+const rangeStyles = `
+  .weight-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: #111;
+    outline: none;
   }
 
-  const denominator = Math.sqrt(userNormSq) * Math.sqrt(candidateNormSq);
-  return denominator ? numerator / denominator : 0;
-}
+  .weight-range::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 999px;
+    background: #111;
+  }
 
+  .weight-range::-moz-range-track {
+    height: 8px;
+    border-radius: 999px;
+    background: #111;
+  }
+
+  .weight-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 2px solid #111;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .weight-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 2px solid #111;
+    background: #fff;
+    cursor: pointer;
+  }
+`;
 const s = {
   root: {
     fontFamily: "Inter, system-ui, sans-serif",
@@ -471,6 +554,15 @@ const s = {
     borderRadius: 10,
     padding: 10,
   },
+  weightWrap: { display: "grid", gap: 6 },
+  weightRange: { width: "100%" },
+  weightLabels: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: 12,
+    color: "#666",
+    gap: 8,
+  },
   grid: {
     display: "grid",
     gap: 8,
@@ -488,7 +580,7 @@ const s = {
   resultItem: { border: "1px solid #e7e7e7", borderRadius: 12, padding: 12 },
 };
 
-KandidattestFramer.defaultProps = {
+KandidattestFramerWeightedManhattan.defaultProps = {
   title: "Kandidattest",
   supabaseUrl: "",
   supabaseAnonKey: "",
@@ -496,7 +588,7 @@ KandidattestFramer.defaultProps = {
   showExplanationsByDefault: false,
 };
 
-addPropertyControls(KandidattestFramer, {
+addPropertyControls(KandidattestFramerWeightedManhattan, {
   title: { type: ControlType.String, title: "Titel" },
   supabaseUrl: {
     type: ControlType.String,
@@ -520,6 +612,3 @@ addPropertyControls(KandidattestFramer, {
     displayTextArea: true,
   },
 });
-
-
-

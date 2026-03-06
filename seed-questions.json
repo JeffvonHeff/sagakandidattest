@@ -1,27 +1,43 @@
 [
-  { "id": "q1",  "topic": "Klima",          "text": "Kommunen skal plante flere træer i byen.",                                    "explain": "Kort udsagn om grønne områder.",                             "default_weight": 2, "sort_order": 1 },
-  { "id": "q2",  "topic": "Klima",          "text": "Nye kommunale bygninger skal være mere energieffektive.",                     "explain": "Handler om energikrav til offentlige bygninger.",             "default_weight": 2, "sort_order": 2 },
-  { "id": "q3",  "topic": "Miljø",          "text": "Der skal være flere affaldssorteringspunkter i boligområder.",                "explain": "Lettere adgang til sortering.",                              "default_weight": 2, "sort_order": 3 },
-  { "id": "q4",  "topic": "Skole",          "text": "Der skal være færre elever i hver skoleklasse.",                              "explain": "Fokus på klassestørrelse.",                                  "default_weight": 2, "sort_order": 4 },
-  { "id": "q5",  "topic": "Skole",          "text": "Skoler skal have flere penge til specialundervisning.",                       "explain": "Støtte til elever med særlige behov.",                       "default_weight": 2, "sort_order": 5 },
-  { "id": "q6",  "topic": "Dagtilbud",      "text": "Der skal ansættes flere pædagoger i daginstitutioner.",                       "explain": "Voksne pr. barn i institutioner.",                           "default_weight": 2, "sort_order": 6 },
-  { "id": "q7",  "topic": "Sundhed",        "text": "Kommunen skal bruge flere penge på ældrepleje.",                              "explain": "Bedre hjælp til ældre borgere.",                             "default_weight": 2, "sort_order": 7 },
-  { "id": "q8",  "topic": "Sundhed",        "text": "Det skal være nemmere at få hjemmehjælp.",                                   "explain": "Adgang til støtte i hjemmet.",                               "default_weight": 2, "sort_order": 8 },
-  { "id": "q9",  "topic": "Transport",      "text": "Der skal være flere cykelstier i kommunen.",                                 "explain": "Udbygning af cykelinfrastruktur.",                           "default_weight": 2, "sort_order": 9 },
-  { "id": "q10", "topic": "Transport",      "text": "Busser og tog skal have højere prioritet end biltrafik.",                    "explain": "Fokus på kollektiv trafik.",                                 "default_weight": 2, "sort_order": 10 },
-  { "id": "q11", "topic": "Transport",      "text": "Der skal indføres lavere hastighed i boligområder.",                         "explain": "Trafiksikkerhed tæt på boliger.",                            "default_weight": 2, "sort_order": 11 },
-  { "id": "q12", "topic": "Bolig",          "text": "Kommunen skal bygge flere billige boliger.",                                 "explain": "Flere boliger med lav husleje.",                             "default_weight": 2, "sort_order": 12 },
-  { "id": "q13", "topic": "Bolig",          "text": "Nye boligområder skal have grønne fællesarealer.",                           "explain": "Parker og opholdsrum i nye kvarterer.",                      "default_weight": 2, "sort_order": 13 },
-  { "id": "q14", "topic": "Tryghed",        "text": "Der skal være mere synlig lokal tryghedsskabende indsats.",                  "explain": "Fx gadeplansindsatser og nærvær i byrum.",                   "default_weight": 2, "sort_order": 14 },
-  { "id": "q15", "topic": "Tryghed",        "text": "Kommunen skal investere mere i forebyggelse for unge i risiko.",             "explain": "Tidlige indsatser frem for senere reparation.",              "default_weight": 2, "sort_order": 15 },
-  { "id": "q16", "topic": "Kultur",         "text": "Der skal bruges flere penge på kultur- og fritidstilbud.",                   "explain": "Biblioteker, kulturhuse og aktiviteter.",                    "default_weight": 2, "sort_order": 16 },
-  { "id": "q17", "topic": "Kultur",         "text": "Kommunen skal støtte flere lokale idrætsforeninger.",                        "explain": "Tilskud og faciliteter til foreninger.",                     "default_weight": 2, "sort_order": 17 },
-  { "id": "q18", "topic": "Erhverv",        "text": "Det skal være lettere for små virksomheder at få tilladelser.",              "explain": "Mindre bureaukrati for iværksættere.",                       "default_weight": 2, "sort_order": 18 },
-  { "id": "q19", "topic": "Erhverv",        "text": "Kommunen skal prioritere lokale indkøb hos små leverandører.",               "explain": "Støtte til lokalt erhvervsliv.",                             "default_weight": 2, "sort_order": 19 },
-  { "id": "q20", "topic": "Digitalisering", "text": "Flere kommunale services skal kunne klares digitalt.",                       "explain": "Nem selvbetjening online.",                                  "default_weight": 2, "sort_order": 20 },
-  { "id": "q21", "topic": "Digitalisering", "text": "Kommunen skal tilbyde bedre hjælp til borgere, der ikke er digitale.",       "explain": "Support til borgere med lav digital erfaring.",              "default_weight": 2, "sort_order": 21 },
-  { "id": "q22", "topic": "Økonomi",        "text": "Kommunen må gerne hæve skatten lidt for at forbedre velfærden.",             "explain": "Skat mod bedre service.",                                    "default_weight": 2, "sort_order": 22 },
-  { "id": "q23", "topic": "Økonomi",        "text": "Kommunen skal spare på administration før den sparer på velfærd.",           "explain": "Prioritering af kernevelfærd.",                              "default_weight": 2, "sort_order": 23 },
-  { "id": "q24", "topic": "Demokrati",      "text": "Borgerne skal inddrages mere i lokale beslutninger.",                        "explain": "Mere borgerdialog og høringer.",                             "default_weight": 2, "sort_order": 24 },
-  { "id": "q25", "topic": "Demokrati",      "text": "Kommunen skal gøre det nemmere at forstå politiske beslutninger.",           "explain": "Klar og enkel kommunikation.",                               "default_weight": 2, "sort_order": 25 }
+  { "id": "q1",  "topic": "Uddannelse",          "text": "Reformer, der forkorter uddannelser, lægger et for stort pres på studerende og går ud over unges trivsel.", "explain": "", "default_weight": 1, "sort_order": 1 },
+  { "id": "q2",  "topic": "Uddannelse",          "text": "Det 6. SU-år bør genindføres.", "explain": "", "default_weight": 1, "sort_order": 2 },
+  { "id": "q3",  "topic": "Uddannelse",          "text": "SU'en bør hæves for at følge de stigende leveomkostninger for studerende.", "explain": "", "default_weight": 1, "sort_order": 3 },
+
+  { "id": "q4",  "topic": "Klima miljø og grøn omstilling", "text": "Beskyttelsen af rent drikkevand bør prioriteres højere end landbrugets interesser.", "explain": "", "default_weight": 1, "sort_order": 4 },
+  { "id": "q5",  "topic": "Klima miljø og grøn omstilling", "text": "Den grønne omstilling bør gennemføres, også hvis det kan svække dansk konkurrenceevne.", "explain": "", "default_weight": 1, "sort_order": 5 },
+  { "id": "q6",  "topic": "Klima miljø og grøn omstilling", "text": "Kravene til svineproduktionen bør skærpes – også hvis det gør dansk landbrug mindre konkurrencedygtigt.", "explain": "", "default_weight": 1, "sort_order": 6 },
+  { "id": "q7",  "topic": "Klima miljø og grøn omstilling", "text": "Danmark bør fremrykke målet om klimaneutralitet fra 2045 til 2035.", "explain": "", "default_weight": 1, "sort_order": 7 },
+
+  { "id": "q8",  "topic": "EU international politik og solidaritet", "text": "Danmark bør anerkende Palæstina som stat.", "explain": "", "default_weight": 1, "sort_order": 8 },
+  { "id": "q9",  "topic": "EU international politik og solidaritet", "text": "Danmark bør øge den humanitære hjælp til mennesker ramt af krig og konflikter – også hvis det kræver omprioriteringer i de offentlige udgifter.", "explain": "", "default_weight": 1, "sort_order": 9 },
+  { "id": "q10", "topic": "EU international politik og solidaritet", "text": "Danmark bør styrke samarbejdet i EU og NATO – også hvis det betyder mindre national selvbestemmelse og højere forsvarsudgifter.", "explain": "", "default_weight": 1, "sort_order": 10 },
+
+  { "id": "q11", "topic": "Demokrati",           "text": "Stemmeretsalderen bør sænkes til 16 år.", "explain": "", "default_weight": 1, "sort_order": 11 },
+  { "id": "q12", "topic": "Demokrati",           "text": "Der bør indføres strengere regler for lobbyisme i dansk politik.", "explain": "", "default_weight": 1, "sort_order": 12 },
+
+  { "id": "q13", "topic": "Sundhed og trivsel",  "text": "Ordningen med gratis psykologhjælp til 18–24-årige med mild til moderat angst eller depression bør udvides til at omfatte flere aldersgrupper.", "explain": "", "default_weight": 1, "sort_order": 13 },
+  { "id": "q14", "topic": "Sundhed og trivsel",  "text": "Ventetiden på udredning af børn og unge i psykiatrien bør nedbringes – også hvis det kræver øget brug af private behandlere.", "explain": "", "default_weight": 1, "sort_order": 14 },
+
+  { "id": "q15", "topic": "Bolig",               "text": "Staten bør regulere boligmarkedet for at gøre det lettere for unge og førstegangskøbere at komme ind på boligmarkedet.", "explain": "", "default_weight": 1, "sort_order": 15 },
+  { "id": "q16", "topic": "Bolig",               "text": "Huslejestigninger bør i højere grad reguleres ved lov.", "explain": "", "default_weight": 1, "sort_order": 16 },
+  { "id": "q17", "topic": "Bolig",               "text": "Der bør bygges flere billige studieboliger i de større byer.", "explain": "", "default_weight": 1, "sort_order": 17 },
+
+  { "id": "q18", "topic": "Værdipolitik ligestilling og repræsentation", "text": "Der bør gennemføres politiske tiltag for at mindske polarisering og had i den offentlige debat.", "explain": "", "default_weight": 1, "sort_order": 18 },
+  { "id": "q19", "topic": "Værdipolitik ligestilling og repræsentation", "text": "Der bør iværksættes tiltag for at øge repræsentationen af køn og minoriteter i politik.", "explain": "", "default_weight": 1, "sort_order": 19 },
+  { "id": "q20", "topic": "Værdipolitik ligestilling og repræsentation", "text": "Skoler og uddannelsesinstitutioner bør gøre mere for at sikre trivsel for LGBT+-elever.", "explain": "", "default_weight": 1, "sort_order": 20 },
+
+  { "id": "q21", "topic": "Forsvar og sikkerhed", "text": "Staten bør have mulighed for at indføre overvågning af borgernes private kommunikation for at forebygge kriminalitet og terror.", "explain": "", "default_weight": 1, "sort_order": 21 },
+  { "id": "q22", "topic": "Forsvar og sikkerhed", "text": "Danmark bør øge forsvarsbudgettet – også hvis det betyder færre penge til andre områder.", "explain": "", "default_weight": 1, "sort_order": 22 },
+
+  { "id": "q23", "topic": "Fremtidens arbejdsmarked", "text": "AI bør reguleres politisk for at beskytte unges jobsikkerhed.", "explain": "", "default_weight": 1, "sort_order": 23 },
+
+  { "id": "q24", "topic": "Udlændinge og integration", "text": "Danmarks udlændingepolitik bør strammes.", "explain": "", "default_weight": 1, "sort_order": 24 },
+  { "id": "q25", "topic": "Udlændinge og integration", "text": "Danmark bør gennemføre udvisninger af kriminelle udlændinge – også selvom det strider mod Den Europæiske Menneskerettighedskonvention.", "explain": "", "default_weight": 1, "sort_order": 25 },
+
+  { "id": "q26", "topic": "Skat afgifter økonomi og arbejdsmarked", "text": "Investeringer i uddannelse bør prioriteres højere end skattelettelser.", "explain": "", "default_weight": 1, "sort_order": 26 },
+  { "id": "q27", "topic": "Skat afgifter økonomi og arbejdsmarked", "text": "For at styrke Danmarks konkurrenceevne bør økonomisk vækst prioriteres højere end at reducere økonomisk ulighed.", "explain": "", "default_weight": 1, "sort_order": 27 },
+  { "id": "q28", "topic": "Skat afgifter økonomi og arbejdsmarked", "text": "Der bør indføres formueskat for at reducere økonomisk ulighed.", "explain": "", "default_weight": 1, "sort_order": 28 },
+
+  { "id": "q29", "topic": "Retspolitik og tryghed", "text": "Straffen for personfarlig kriminalitet (fx voldtægt og grov vold) bør skærpes.", "explain": "", "default_weight": 1, "sort_order": 29 },
+  { "id": "q30", "topic": "Retspolitik og tryghed", "text": "Sociale medier bør reguleres strengere for at beskytte børn og unge mod skadeligt indhold.", "explain": "", "default_weight": 1, "sort_order": 30 }
 ]
