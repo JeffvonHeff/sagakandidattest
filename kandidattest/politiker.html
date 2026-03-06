@@ -1,11 +1,20 @@
 <!doctype html>
 <html lang="da">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kandidattest – Besvar udsagn</title>
-  <link rel="stylesheet" href="styles.css" />
-  <style>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kandidattest – Besvar udsagn</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="tailwind.css" />
+    <style>
+    :root { --border: var(--color-border); --accent: var(--color-accent); --text: var(--color-text); --bg: var(--color-bg); --radius: var(--radius-xl); }
     .q-block { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
     .q-block:first-of-type { border-top: none; margin-top: 0; }
     .btn.ans.selected { background: var(--accent); border-color: rgba(0,0,0,.3); }
@@ -32,11 +41,8 @@
       width: 20px; height: 20px; accent-color: var(--accent);
       cursor: pointer;
     }
-  </style>
-</head>
-
- 
-
+    </style>
+  </head>
   <body
     class="min-h-screen h-full grow overflow-y-auto flex flex-col justify-between relative"
   >
@@ -47,12 +53,6 @@
         class="absolute -bottom-20 left-10 -rotate-40 scale-260"
       />
     </div>
-  <header class="site-header">
-    <div class="wrap">
-      <h1>Kandidattest</h1>
-      <p class="muted">Besvar udsagnene herunder. Dine svar bruges til at matche vælgere med kandidater.</p>
-    </div>
-
     <header class="pt-12 pb-16 z-20">
       <div class="max-w-4xl mx-auto flex flex-row items-center px-12">
         <div class="flex flex-col">
@@ -77,8 +77,24 @@
       </div>
     </main>
 
-  <script src="/api/config.js"></script>
-  <script src="storkredse.js"></script>
-  <script src="politiker.js"></script>
-</body>
+    <footer class="text-muted pb-12 pt-8 z-20">
+      <div class="max-w-4xl mx-auto text-xs px-12">
+        <div class="max-w-prose flex flex-col gap-2">
+          <p>SAGA Kandidattest 2026.</p>
+          <p>
+            Metode og transparens: Match beregnes som afstand mellem dine svar
+            og kandidaters svar på samme udsagn.
+          </p>
+          <p>
+            Privatlivspolitik: Vi indsamler eller gemmer ingen personlige data.
+            Dine svar forbliver helt private og anonyme.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/api/config.js"></script>
+    <script src="storkredse.js"></script>
+    <script src="politiker.js"></script>
+  </body>
 </html>
