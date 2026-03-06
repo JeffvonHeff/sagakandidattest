@@ -13,7 +13,7 @@ const FALLBACK_QUESTIONS = [
 
 { id:"q8",topic:"EU international politik og solidaritet",text:"Danmark bør anerkende Palæstina som stat.",defaultWeight:1},
 { id:"q9",topic:"EU international politik og solidaritet",text:"Danmark bør øge den humanitære hjælp til mennesker ramt af krig og konflikter – også hvis det kræver omprioriteringer i de offentlige udgifter.",defaultWeight:1},
-{ id:"q10",topic:"EU international politik og solidaritet",text:"Danmark bør styrke samarbejdet i EU og NATO – også hvis det betyder mindre national selvbestemmelse og højere forsvarsudgifter.",defaultWeight:1},
+{ id:"q10",topic:"EU international politik og solidaritet",text:"Danmark bør styrke samarbejdet i EU – også hvis det betyder mindre national selvbestemmelse.",defaultWeight:1},
 
 { id:"q11",topic:"Demokrati",text:"Stemmeretsalderen bør sænkes til 16 år.",defaultWeight:1},
 { id:"q12",topic:"Demokrati",text:"Der bør indføres strengere regler for lobbyisme i dansk politik.",defaultWeight:1},
