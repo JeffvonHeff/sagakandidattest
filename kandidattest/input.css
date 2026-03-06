@@ -12,6 +12,7 @@
   --color-muted: #4a4a4a;
   --color-border: rgba(17, 17, 17, 0.14);
   --color-accent: #f2d200;
+  --color-brand: #ffff00;
 }
 
 /* Tell Tailwind where to find your class names */
@@ -35,17 +36,18 @@
   .weight-slider::-webkit-slider-runnable-track {
     height: 10px;
     border-radius: 9999px;
-    background: var(--color-text);
+    background: rgba(17, 17, 17, 0.1);
+    border: 1px solid rgba(17, 17, 17, 0.1);
   }
   .weight-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 18px;
     height: 18px;
-    margin-top: -4px;
+    margin-top: -6px;
     border-radius: 50%;
-    border: 2px solid var(--color-text);
-    background: var(--color-surface);
+    border: 2px solid rgba(17, 17, 17, 0.1);
+    background: var(--color-accent);
   }
   .weight-slider::-moz-range-track {
     height: 10px;
