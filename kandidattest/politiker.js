@@ -4,7 +4,7 @@
   var config = window.__SUPABASE_CONFIG;
   if (!config || !config.url || !config.key) {
     document.getElementById("app").innerHTML =
-      '<div class="bg-surface border border-border rounded-2xl p-5 my-4 shadow-lg"><p class="text-muted">Konfiguration mangler. Start serveren med <code>npm start</code>.</p></div>';
+      '<div class="bg-white border border-black/20 rounded shadow-lg px-8 py-12 flex flex-col"><p class="text-muted">Konfiguration mangler. Start serveren med <code>npm start</code>.</p></div>';
     return;
   }
 
