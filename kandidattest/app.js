@@ -111,7 +111,6 @@
     qTitle: document.getElementById("qTitle"),
     qMeta: document.getElementById("qMeta"),
     qText: document.getElementById("qText"),
-    qWeight: document.getElementById("qWeight"),
     qExplain: document.getElementById("qExplain"),
     explainBox: document.getElementById("explainBox"),
 
@@ -324,10 +323,6 @@
     els.qTitle.textContent = `Udsagn ${state.step + 1}`;
     els.qMeta.textContent = q.topic ? `Emne: ${q.topic}` : "";
     els.qText.textContent = q.text;
-    const currentWeight = clampInt(r.weight, 1, 3);
-    els.qWeight.value = String(currentWeight);
-    els.qWeight.setAttribute("aria-valuenow", String(currentWeight));
-
     els.qExplain.textContent = q.explain || "";
     els.explainBox.classList.toggle(
       "hidden",
@@ -647,17 +642,6 @@
     }
   }
 
-  function updateCurrentWeight(value) {
-    const q = currentQuestion();
-    if (!q) return;
-
-    const r = ensureResponse(q);
-    r.weight = clampInt(value, 1, 3);
-    state.responses[q.id] = r;
-    els.qWeight.setAttribute("aria-valuenow", String(r.weight));
-    save();
-  }
-
   function goBack() {
     state.step = clampInt(state.step - 1, 0, data.questions.length - 1);
     save();
@@ -778,9 +762,6 @@
       validateArea(true);
     });
 
-    const handleWeightChange = () => updateCurrentWeight(els.qWeight.value);
-    els.qWeight.addEventListener("input", handleWeightChange);
-    els.qWeight.addEventListener("change", handleWeightChange);
   }
 
   async function init() {
