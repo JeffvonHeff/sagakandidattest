@@ -5,7 +5,7 @@ const fs = require("fs");
 const fsp = require("fs/promises");
 const path = require("path");
 
-const PORT = Number(process.env.PORT || 3000);
+const PORT = Number(process.env.PORT || 3100);
 const ROOT_DIR = path.join(__dirname, "kandidattest");
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "";
@@ -24,19 +24,22 @@ const MIME_TYPES = {
   ".css": "text/css; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
   ".csv": "text/csv; charset=utf-8",
-  ".json": "application/json; charset=utf-8"
+  ".json": "application/json; charset=utf-8",
 };
 
 const server = http.createServer(async (req, res) => {
   try {
     if (req.method === "GET" && req.url === "/api/config.js") {
-      const js = "window.__SUPABASE_CONFIG=" + JSON.stringify({
-        url: SUPABASE_URL,
-        key: SUPABASE_ANON_KEY
-      }) + ";";
+      const js =
+        "window.__SUPABASE_CONFIG=" +
+        JSON.stringify({
+          url: SUPABASE_URL,
+          key: SUPABASE_ANON_KEY,
+        }) +
+        ";";
       res.writeHead(200, {
         "Content-Type": "application/javascript; charset=utf-8",
-        "Cache-Control": "no-store"
+        "Cache-Control": "no-store",
       });
       res.end(js);
       return;
