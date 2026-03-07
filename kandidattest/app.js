@@ -333,10 +333,8 @@
     els.barFill.style.width = `${pct}%`;
     els.barText.textContent = `${state.step} af ${data.questions.length}`;
 
-    els.btnFinish.classList.toggle(
-      "hidden",
-      state.step !== data.questions.length - 1,
-    );
+    // "Se resultat" should not appear as an option on the last question.
+    els.btnFinish.classList.add("hidden");
   }
 
   function renderResult() {
