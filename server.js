@@ -5,7 +5,7 @@ const fs = require("fs");
 const fsp = require("fs/promises");
 const path = require("path");
 
-const PORT = Number(process.env.PORT || 3100);
+const PORT = Number(process.env.PORT || 3000);
 const ROOT_DIR = path.join(__dirname, "kandidattest");
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "";
