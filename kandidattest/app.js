@@ -92,7 +92,9 @@
     if (!res.ok) throw new Error("HTTP " + res.status);
   }
 
-  const MUNICIPALITIES = (window.STORKREDS_DATA || {}).STORKREDSE || [];
+  const STORKREDS_DATA = window.STORKREDS_DATA || {};
+  const MUNICIPALITIES = STORKREDS_DATA.KOMMUNER || [];
+  const KOMMUNE_TO_STORKREDS = STORKREDS_DATA.KOMMUNE_TO_STORKREDS || {};
 
   const els = {
     start: document.getElementById("screen-start"),
@@ -131,6 +133,7 @@
 
   const state = {
     step: 0,
+    municipality: "",
     area: "",
     showExplain: false,
     responses: {}, // { qid: { value: number|null, weight: number } }
@@ -148,6 +151,8 @@
       if (!saved || typeof saved !== "object") return;
 
       state.step = clampInt(saved.step, 0, data.questions.length);
+      state.municipality =
+        typeof saved.municipality === "string" ? saved.municipality : "";
       state.area = typeof saved.area === "string" ? saved.area : "";
       state.showExplain = !!saved.showExplain;
       state.responses =
@@ -163,6 +168,7 @@
   function save() {
     const payload = {
       step: state.step,
+      municipality: state.municipality,
       area: state.area,
       showExplain: state.showExplain,
       responses: state.responses,
@@ -174,6 +180,7 @@
   function resetAll() {
     localStorage.removeItem(STORAGE_KEY);
     state.step = 0;
+    state.municipality = "";
     state.area = "";
     state.showExplain = false;
     state.responses = {};
@@ -228,7 +235,7 @@
 
   function renderStart() {
     showScreen("start");
-    els.areaInput.value = state.area;
+    els.areaInput.value = state.municipality;
     els.toggleExplain.checked = state.showExplain;
     validateArea(false);
   }
@@ -237,15 +244,52 @@
     return (s || "").trim().toLocaleLowerCase("da-DK");
   }
 
-  function isValidMunicipality(value) {
+  function findMunicipality(value) {
     const normalized = normalizeMunicipalityName(value);
-    return MUNICIPALITIES.some(
-      (item) => normalizeMunicipalityName(item) === normalized,
+    return (
+      MUNICIPALITIES.find(
+        (item) => normalizeMunicipalityName(item) === normalized,
+      ) || ""
     );
   }
 
+  function getStorkredsForMunicipality(municipality) {
+    const storkreds = KOMMUNE_TO_STORKREDS[municipality];
+    const normalize =
+      typeof STORKREDS_DATA.normalizeStorkreds === "function"
+        ? STORKREDS_DATA.normalizeStorkreds
+        : (x) => (x || "").trim();
+    return normalize(storkreds || "");
+  }
+
+  function isValidMunicipality(value) {
+    return !!findMunicipality(value);
+  }
+
+  function selectedMunicipalityToStorkreds() {
+    const municipality = findMunicipality(els.areaInput.value);
+    if (!municipality) return "";
+    return getStorkredsForMunicipality(municipality);
+  }
+
+  function hasValidMunicipalityWithStorkreds(value) {
+    const municipality = findMunicipality(value);
+    if (!municipality) return false;
+    return !!getStorkredsForMunicipality(municipality);
+  }
+
+  function normalizeArea(s) {
+    return (s || "").trim().toLowerCase();
+  }
+
+  function filterCandidatesByArea(candidates, area) {
+    const a = normalizeArea(area);
+    if (!a) return candidates;
+    return candidates.filter((c) => normalizeArea(c.area).includes(a));
+  }
+
   function validateArea(showError = true) {
-    const isValid = isValidMunicipality(els.areaInput.value);
+    const isValid = hasValidMunicipalityWithStorkreds(els.areaInput.value);
 
     els.btnStart.disabled = !isValid;
     if (!isValid && showError) {
@@ -319,16 +363,6 @@
     results.slice(0, 12).forEach((row, idx) => {
       els.resultList.appendChild(renderResultItem(row, idx));
     });
-  }
-
-  function normalizeArea(s) {
-    return (s || "").trim().toLowerCase();
-  }
-
-  function filterCandidatesByArea(candidates, area) {
-    const a = normalizeArea(area);
-    if (!a) return candidates;
-    return candidates.filter((c) => normalizeArea(c.area).includes(a));
   }
 
   // Scoring: vægtet cosine similarity på centrerede Likert-værdier.
@@ -566,12 +600,8 @@
       return;
     }
 
-    state.area =
-      MUNICIPALITIES.find(
-        (item) =>
-          normalizeMunicipalityName(item) ===
-          normalizeMunicipalityName(els.areaInput.value),
-      ) || "";
+    state.municipality = findMunicipality(els.areaInput.value);
+    state.area = getStorkredsForMunicipality(state.municipality);
     state.showExplain = els.toggleExplain.checked;
     save();
     renderQuiz();
@@ -643,8 +673,9 @@
   }
 
   function startOverToStart() {
-    // Ryd alt der påvirker storkreds og svar
+    // Ryd alt der påvirker kommune/storkreds og svar
     state.step = 0;
+    state.municipality = "";
     state.area = "";
     state.responses = {};
     state.hasSavedSubmission = false;
@@ -771,7 +802,15 @@
     populateMunicipalityList();
     load();
 
-    if (!isValidMunicipality(state.area)) {
+    if (!isValidMunicipality(state.municipality)) {
+      state.municipality = "";
+    }
+
+    if (!state.area && state.municipality) {
+      state.area = getStorkredsForMunicipality(state.municipality);
+    }
+
+    if (!state.area) {
       state.area = "";
     }
 
