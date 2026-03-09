@@ -460,6 +460,12 @@ function scoreAllCandidates(candidates, responses, questions) {
     })
     .sort((a, b) => b.pct - a.pct || a.distance - b.distance);
 }
+
+export const __testables = {
+  clampInt,
+  scoreAllCandidates,
+};
+
 const rangeStyles = `
   .weight-range {
     -webkit-appearance: none;

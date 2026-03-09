@@ -422,6 +422,11 @@ function cosineSimilarity(rows) {
   return denominator ? numerator / denominator : 0;
 }
 
+export const __testables = {
+  scoreAllCandidates,
+  cosineSimilarity,
+};
+
 
 const s = {
   root: {

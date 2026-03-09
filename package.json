@@ -5,9 +5,13 @@
     "start": "node server.js",
     "build": "echo 'Static site – no build step'",
     "seed": "node seed.js",
-    "seed:candidates": "node seed-candidates.js"
+    "seed:candidates": "node seed-candidates.js",
+    "test": "vitest run"
   },
   "dependencies": {
     "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
   }
 }

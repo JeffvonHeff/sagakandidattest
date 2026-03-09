@@ -414,6 +414,10 @@ function scoreAllCandidates(candidates, responses, questions) {
     .sort((a, b) => b.pct - a.pct || a.distance - b.distance);
 }
 
+export const __testables = {
+  scoreAllCandidates,
+};
+
 
 const s = {
   root: {
