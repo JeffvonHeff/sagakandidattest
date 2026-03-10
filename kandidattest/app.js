@@ -130,6 +130,8 @@
     btnRestartToStart: document.getElementById("btnRestartToStart"),
   };
 
+  const MAX_SKIPS = 10;
+
   const state = {
     step: 0,
     municipality: "",
@@ -139,6 +141,12 @@
     hasSavedSubmission: false,
     isSharedResultView: false,
   };
+
+  function countSkips() {
+    return Object.values(state.responses).filter(
+      (r) => r && r.value === null,
+    ).length;
+  }
 
   const STORAGE_KEY = `kandidattest:${data.quizId}`;
 
@@ -318,8 +326,6 @@
       return;
     }
 
-    const r = ensureResponse(q);
-
     els.qTitle.textContent = `Udsagn ${state.step + 1}`;
     els.qMeta.textContent = q.topic ? `Emne: ${q.topic}` : "";
     els.qText.textContent = q.text;
@@ -332,6 +338,13 @@
     const pct = Math.round((state.step / data.questions.length) * 100);
     els.barFill.style.width = `${pct}%`;
     els.barText.textContent = `${state.step} af ${data.questions.length}`;
+
+    const skipsUsed = countSkips();
+    els.btnSkip.disabled = skipsUsed >= MAX_SKIPS;
+    els.btnSkip.textContent =
+      skipsUsed >= MAX_SKIPS
+        ? `Spring over (${MAX_SKIPS}/${MAX_SKIPS})`
+        : `Spring over (${skipsUsed}/${MAX_SKIPS})`;
 
     // "Se resultat" should not appear as an option on the last question.
     els.btnFinish.classList.add("hidden");
@@ -600,6 +613,9 @@
   function skipCurrent() {
     const q = currentQuestion();
     if (!q) return;
+    const existing = state.responses[q.id];
+    const alreadySkipped = existing && existing.value === null;
+    if (!alreadySkipped && countSkips() >= MAX_SKIPS) return;
 
     const r = ensureResponse(q);
     r.value = null;
