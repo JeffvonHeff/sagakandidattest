@@ -1,130 +1,340 @@
 <!doctype html>
 <html lang="da">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kandidattest skabelon</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <a class="skip-link" href="#app">Spring til indhold</a>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SAGA Kandidattest</title>
 
-  <header class="site-header">
-    <div class="wrap">
-      <h1>Kandidattest</h1>
-      <p class="muted">Svar på udsagn og se hvilke kandidater du matcher bedst.</p>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="tailwind.css" />
+  </head>
+  <body
+    class="min-h-screen h-full grow overflow-y-auto flex flex-col justify-between relative"
+  >
+    <div class="absolute inset-0 overflow-hidden">
+      <img
+        src="assets/saga_yellow_logo.png"
+        alt="SAGA"
+        class="absolute -bottom-20 left-10 -rotate-40 scale-260"
+      />
     </div>
-  </header>
-
-  <main id="app" class="wrap" aria-live="polite">
-    <section id="screen-start" class="card">
-      <h2>Start</h2>
-      <p class="muted">
-        Skabelon. Du kan udskifte tekst, spørgsmål og kandidater senere.
-      </p>
-
-      <div class="grid">
-        <label class="field">
-          <span>Vælg kommune (obligatorisk)</span>
-          <input id="areaInput" type="text" list="municipalityList" autocomplete="off" placeholder="Søg og vælg kommune" required />
-          <datalist id="municipalityList"></datalist>
-          <small id="areaError" class="error-text hidden">Vælg en kommune fra listen for at starte testen.</small>
-        </label>
-
-        <label class="field">
-          <span>Vis forklaringer efter hvert spørgsmål</span>
-          <input id="toggleExplain" type="checkbox" />
-        </label>
+    <a
+      class="absolute -left-[999px] top-4 p-4 bg-white text-black rounded border border-border focus:left-4 focus:outline-none z-20"
+      href="#app"
+      >Spring til indhold</a
+    >
+    <header class="pt-12 pb-16 z-20">
+      <div class="max-w-4xl mx-auto flex flex-row items-center px-12">
+        <div class="flex flex-col">
+          <h1 class="text-3xl leading-tight tracking-tight">Kandidattest</h1>
+          <p class="max-w-prose text-lg text-muted">
+            Svar på følgende udsagn og se hvilke kandidater du bedst matcher.
+          </p>
+        </div>
       </div>
+    </header>
 
-      <button id="btnStart" class="btn primary">Start testen</button>
-      <button id="btnReset" class="btn">Nulstil</button>
-
-      <details class="details">
-        <summary>Metode og transparens</summary>
-        <p>
-          Match beregnes som afstand mellem dine svar og kandidaters svar på samme udsagn.
+    <main
+      id="app"
+      class="max-w-4xl mx-auto w-full grow z-20 px-12"
+      aria-live="polite"
+    >
+      <section
+        id="screen-start"
+        class="card bg-white border border-black/20 rounded shadow-lg px-8 py-12 flex flex-col"
+      >
+        <h2 class="text-2xl leading-tight tracking-tight">Start</h2>
+        <p class="text-muted">
+          Svar på udsagn og se hvilke kandidater du matcher bedst.
         </p>
-      </details>
-    </section>
 
-    <section id="screen-quiz" class="card hidden">
-      <div class="row space">
-        <div>
-          <h2 id="qTitle">Spørgsmål</h2>
-          <p id="qMeta" class="muted"></p>
+        <div class="flex flex-col md:w-1/2 mt-4 mb-8 gap-4">
+          <label class="block">
+            <span class="block mb-2 text-muted text-sm"
+              >Vælg kommune (obligatorisk)</span
+            >
+            <input
+              id="areaInput"
+              type="text"
+              list="municipalityList"
+              autocomplete="off"
+              placeholder="Søg og vælg kommune"
+              required
+              class="w-full py-3 px-4 border-2 border-border bg-white text-text outline-none focus:ring-[3px] focus:ring-accent/45"
+            />
+            <datalist id="municipalityList"></datalist>
+            <small
+              id="areaError"
+              class="error-text hidden lock mt-2 text-[#b00020]"
+              >Vælg en kommune fra listen for at starte testen.</small
+            >
+          </label>
+
+          <label class="flex flex-row items-center gap-2">
+            <span class="block text-muted text-sm"
+              >Vis forklaringer efter hvert spørgsmål?</span
+            >
+            <input id="toggleExplain" type="checkbox" />
+          </label>
         </div>
-        <div class="progress" aria-label="Fremdrift">
-          <div class="bar"><div id="barFill" class="fill"></div></div>
-          <div id="barText" class="muted small"></div>
+
+        <div class="flex flex-row justify-between">
+          <button
+            id="btnReset"
+            class="border-2 bg-white text-black py-3 px-4 cursor-pointer font-semibold tracking-wide transition hover:bg-black hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
+          >
+            Nulstil
+          </button>
+          <button
+            id="btnStart"
+            class="border-2 disabled:border-border border-black bg-accent text-black hover:bg-accent py-3 px-4 cursor-pointer font-semibold tracking-wide transition hover:-translate-y-px disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            Start testen
+          </button>
         </div>
-      </div>
+      </section>
 
-      <div id="qText" class="statement" role="group" aria-label="Udsagn"></div>
-
-      <div class="answers" role="group" aria-label="Svarmuligheder">
-        <button class="btn ans" data-value="-2">Helt uenig</button>
-        <button class="btn ans" data-value="-1">Delvist uenig</button>
-        <button class="btn ans" data-value="0">Neutral</button>
-        <button class="btn ans" data-value="1">Delvist enig</button>
-        <button class="btn ans" data-value="2">Helt enig</button>
-      </div>
-
-      <div class="grid">
-        <label class="field">
-          <span>Spring over (ingen data)</span>
-          <button id="btnSkip" class="btn">Spring over</button>
-        </label>
-      </div>
-
-      <div id="explainBox" class="explain hidden" aria-label="Forklaring">
-        <h3>Forklaring</h3>
-        <p id="qExplain" class="muted"></p>
-      </div>
-
-      <div class="row space">
-      <div class="row">
-          <button id="btnBack" class="btn">Tilbage</button>
-          <button id="btnStartOver" class="btn">Start helt forfra</button>
+      <section
+        id="screen-quiz"
+        class="bg-white border border-black/20 rounded shadow-lg px-8 pt-10 pb-12 flex flex-col hidden"
+      >
+        <div
+          class="flex flex-col-reverse md:flex-row md:gap-3 items-start justify-between mb-4"
+        >
+          <div>
+            <h2 id="qTitle" class="text-xl leading-tight tracking-tight">
+              Spørgsmål
+            </h2>
+            <p id="qMeta" class="text-muted"></p>
+          </div>
+          <div class="w-full md:w-auto md:min-w-md" aria-label="Fremdrift">
+            <div
+              class="h-3 rounded-full bg-black/10 border border-border overflow-hidden"
+            >
+              <div
+                id="barFill"
+                class="h-full w-0 bg-accent transition-[width] duration-150"
+              ></div>
+            </div>
+            <div id="barText" class="text-muted text-xs text-right mt-2"></div>
+          </div>
         </div>
-        <button id="btnFinish" class="btn primary hidden">Se resultat</button>
-      </div>
-    </section>
 
-    <section id="screen-result" class="card hidden">
-      <h2>Dit resultat</h2>
-      <p id="resultMeta" class="muted"></p>
+        <div
+          id="qText"
+          class="statement text-lg font-semibold leading-snug p-4 border border-border bg-white shadow-md mb-4 wrap-break-word hyphens-auto"
+          role="group"
+          aria-label="Udsagn"
+        ></div>
 
-
-      <div class="row space">
-        <button id="btnShare" class="btn">Kopiér resultat link</button>
-        <div class="row">
-          <button id="btnRestart" class="btn primary">Tag testen igen</button>
-          <button id="btnRestartToStart" class="btn">Start helt forfra</button>
+        <div
+          class="flex flex-col gap-4 md:gap-0 md:flex-row items-center justify-between mb-4"
+          role="group"
+          aria-label="Svarmuligheder"
+        >
+          <button
+            type="button"
+            class="btn ans w-30 md:w-auto bg-surface text-text border border-border shadow-md rounded py-2 px-2 cursor-pointer font-medium transition hover:bg-[#ffd900] hover:border-black/30"
+            data-value="-2"
+          >
+            Helt uenig
+          </button>
+          <button
+            type="button"
+            class="btn ans w-30 md:w-auto bg-surface text-text border border-border shadow-md rounded py-2 px-2 cursor-pointer font-medium transition hover:bg-[#ffd900] hover:border-black/30"
+            data-value="-1"
+          >
+            Delvist uenig
+          </button>
+          <button
+            type="button"
+            class="btn ans w-30 md:w-auto bg-surface text-text border border-border shadow-md rounded py-2 px-2 cursor-pointer font-medium transition hover:bg-[#ffd900] hover:border-black/30"
+            data-value="0"
+          >
+            Neutral
+          </button>
+          <button
+            type="button"
+            class="btn ans w-30 md:w-auto bg-surface text-text border border-border shadow-md rounded py-2 px-2 cursor-pointer font-medium transition hover:bg-[#ffd900] hover:border-black/30"
+            data-value="1"
+          >
+            Delvist enig
+          </button>
+          <button
+            type="button"
+            class="btn ans w-30 md:w-auto bg-surface text-text border border-border shadow-md rounded py-2 px-2 cursor-pointer font-medium transition hover:bg-[#ffd900] hover:border-black/30"
+            data-value="2"
+          >
+            Helt enig
+          </button>
         </div>
-      </div>
 
-      <div id="resultList" class="results" aria-label="Resultatliste"></div>
+        <div
+          id="explainBox"
+          class="mt-3.5 p-3 rounded-2xl border border-border bg-accent/20 hidden"
+          aria-label="Forklaring"
+        >
+          <h3>Forklaring</h3>
+          <p
+            id="qExplain"
+            class="text-muted text-sm wrap-break-word hyphens-auto"
+          ></p>
+        </div>
 
-      <details class="details">
-        <summary>Hvordan beregnes match</summary>
-        <p class="muted">
-          Hvert svar mappes til en skala fra minus 2 til 2. Kandidaters svar ligger på samme skala.
-          For hvert udsagn beregnes en afvigelse. Mindre afvigelse giver højere match.
+        <div
+          role="group"
+          aria-label="Vigtighed af spørgsmålet"
+          class="mt-6 md:mt-10"
+        >
+          <label class="block" for="qWeight">
+            <span class="block mb-2 text-muted text-sm"
+              >Skal dette spørgsmål vægte ekstra?</span
+            >
+          </label>
+          <div class="w-full">
+            <input
+              id="qWeight"
+              class="weight-slider w-full p-0 appearance-none bg-transparent cursor-ew-resize"
+              type="range"
+              min="1"
+              max="3"
+              step="1"
+              value="2"
+              aria-valuemin="1"
+              aria-valuemax="3"
+              aria-valuenow="2"
+              aria-label="Vægtning: Nej, Både og, Ja"
+            />
+            <div
+              class="flex justify-between mt-1.5 text-muted text-sm"
+              aria-hidden="true"
+            >
+              <span>Nej</span>
+              <span>Både og</span>
+              <span>Ja</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 items-center justify-between mt-6">
+          <div
+            class="w-full flex flex-col md:flex-row justify-between gap-3 items-center"
+          >
+            <button
+              type="button"
+              id="btnBack"
+              class="w-38 md:w-auto border border-black/60 bg-white text-black/60 text-sm py-3 px-4 cursor-pointer font-normal tracking-wide transition hover:bg-black hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
+            >
+              Tilbage
+            </button>
+            <button
+              type="button"
+              id="btnStartOver"
+              class="w-38 md:w-auto border border-black/60 bg-white text-black/60 text-sm py-3 px-4 cursor-pointer font-normal tracking-wide transition hover:bg-red-700 hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
+            >
+              Start helt forfra
+            </button>
+            <button
+              type="button"
+              id="btnSkip"
+              class="w-38 md:w-auto border border-black/60 bg-white text-black/60 text-sm py-3 px-4 cursor-pointer font-normal tracking-wide transition hover:bg-black hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
+            >
+              Spring over
+            </button>
+            <button
+              type="button"
+              id="btnFinish"
+              class="w-38 md:w-auto h-11 border bg-accent text-text border-black/60 hover:bg-[#ffd900] py-3 px-4 cursor-pointer font-semibold tracking-wide transition hover:-translate-y-px active:translate-y-0 disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+            >
+              Se resultat
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="screen-result"
+        class="bg-white border border-black/20 rounded shadow-lg px-8 pt-10 pb-12 flex flex-col hidden"
+      >
+        <h2 class="text-xl leading-tight tracking-tight">Dit resultat</h2>
+        <p id="resultMeta" class="text-muted"></p>
+
+        <div
+          id="resultList"
+          class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4"
+          aria-label="Resultatliste"
+        ></div>
+
+        <p class="text-muted text-sm mt-4 max-w-prose">
+          Bemærk, at ikke alle partier og kandidater har besvaret testen fuldt ud. Alle kandidater har dog fået tilsendt testen. Resultaterne afspejler altid den seneste tilgængelige status.
         </p>
-      </details>
-    </section>
-  </main>
 
-  <footer class="site-footer">
-    <div class="wrap muted small">
-      Skabelon til kandidattest. Tilpas frit.
-    </div>
-  </footer>
+        <div
+          class="flex flex-wrap flex-col-reverse md:flex-row gap-3 items-center justify-between mt-8"
+        >
+          <button
+            type="button"
+            id="btnRestartToStart"
+            class="w-43 md:w-auto border border-black/60 bg-white text-black/60 text-sm py-3 px-4 cursor-pointer font-normal tracking-wide transition hover:bg-red-700 hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
+          >
+            Start helt forfra
+          </button>
 
-  <script src="/api/config.js"></script>
-  <script src="storkredse.js"></script>
-  <script src="questions.js"></script>
-  <script src="app.js"></script>
-</body>
+          <div class="flex flex-col md:flex-row gap-3 md:items-center">
+            <button
+              type="button"
+              id="btnShare"
+              class="bg-black text-white text-sm py-3 px-4 cursor-pointer font-semibold tracking-wide transition hover:bg-black/80 hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
+            >
+              Kopiér resultat link
+            </button>
+            <button
+              type="button"
+              id="btnRestart"
+              class="h-11 border bg-accent text-text border-black/60 hover:bg-[#ffd900] py-3 px-4 cursor-pointer font-semibold tracking-wide transition hover:-translate-y-px active:translate-y-0 disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+            >
+              Tag testen igen
+            </button>
+          </div>
+        </div>
+
+        <details class="mt-3">
+          <summary>Hvordan beregnes match</summary>
+          <p class="text-muted">
+            Hvert svar mappes til en skala fra minus 2 til 2. Kandidaters svar
+            ligger på samme skala. For hvert udsagn beregnes en afvigelse.
+            Mindre afvigelse giver højere match.
+          </p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="text-muted pb-12 pt-8 z-20">
+      <div class="max-w-4xl mx-auto text-xs px-12">
+        <div class="max-w-prose flex flex-col gap-2">
+          <p>SAGA Kandidattest 2026.</p>
+          <p>
+            Metode og transparens: Match beregnes som afstand mellem dine svar
+            og kandidaters svar på samme udsagn. Du kan vælge at vægte
+            spørgsmål. Se app.js for beregning.
+          </p>
+          <p>
+            Privatlivspolitik: Vi indsamler eller gemmer ingen personlige data.
+            Dine svar forbliver helt private og anonyme.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/api/config.js"></script>
+    <script src="storkredse.js"></script>
+    <script src="questions.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>

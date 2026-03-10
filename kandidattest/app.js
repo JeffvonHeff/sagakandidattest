@@ -130,6 +130,8 @@
     btnRestartToStart: document.getElementById("btnRestartToStart"),
   };
 
+  const MAX_SKIPS = 10;
+
   const state = {
     step: 0,
     municipality: "",
@@ -139,6 +141,12 @@
     hasSavedSubmission: false,
     isSharedResultView: false,
   };
+
+  function countSkips() {
+    return Object.values(state.responses).filter(
+      (r) => r && r.value === null,
+    ).length;
+  }
 
   const STORAGE_KEY = `kandidattest:${data.quizId}`;
 
@@ -318,8 +326,6 @@
       return;
     }
 
-    const r = ensureResponse(q);
-
     els.qTitle.textContent = `Udsagn ${state.step + 1}`;
     els.qMeta.textContent = q.topic ? `Emne: ${q.topic}` : "";
     els.qText.textContent = q.text;
@@ -332,6 +338,13 @@
     const pct = Math.round((state.step / data.questions.length) * 100);
     els.barFill.style.width = `${pct}%`;
     els.barText.textContent = `${state.step} af ${data.questions.length}`;
+
+    const skipsUsed = countSkips();
+    els.btnSkip.disabled = skipsUsed >= MAX_SKIPS;
+    els.btnSkip.textContent =
+      skipsUsed >= MAX_SKIPS
+        ? `Spring over (${MAX_SKIPS}/${MAX_SKIPS})`
+        : `Spring over (${skipsUsed}/${MAX_SKIPS})`;
 
     // "Se resultat" should not appear as an option on the last question.
     els.btnFinish.classList.add("hidden");
@@ -353,7 +366,7 @@
     const results = scoreAllCandidates(filteredCandidates);
 
     els.resultList.innerHTML = "";
-    results.slice(0, 12).forEach((row, idx) => {
+    results.slice(0, 4).forEach((row, idx) => {
       els.resultList.appendChild(renderResultItem(row, idx));
     });
   }
@@ -438,41 +451,36 @@
 
   function renderResultItem(row, idx) {
     const div = document.createElement("div");
-    div.className = "result-item";
+    div.className = "border border-border rounded-2xl p-3.5 bg-surface shadow-lg";
 
     const top = document.createElement("div");
-    top.className = "result-top";
 
     const name = document.createElement("div");
-    name.innerHTML = `<strong>${escapeHtml(row.candidate.name)}</strong> <span class="muted">(${escapeHtml(row.candidate.party || "Uafh")})</span>`;
-
-    const pill = document.createElement("div");
-    pill.className = "pill";
-    pill.textContent = `${row.pct}% match, ${row.compared} udsagn sammenlignet`;
+    name.innerHTML = `<strong>${escapeHtml(row.candidate.name)}</strong> <span class="text-muted">(${escapeHtml(row.candidate.party || "Uafh")})</span>`;
 
     top.appendChild(name);
-    top.appendChild(pill);
 
     const meta = document.createElement("div");
+    meta.className = "text-muted text-sm";
+    meta.textContent = row.candidate.area ? `Område: ${row.candidate.area}` : "";
     meta.className = "muted small";
     meta.textContent = row.candidate.area
       ? `Område: ${row.candidate.area}`
       : "";
 
     const details = document.createElement("details");
-    details.className = "details";
+    details.className = "mt-3";
     const summary = document.createElement("summary");
     summary.textContent = "Se forskelle pr udsagn";
     details.appendChild(summary);
 
     const list = document.createElement("div");
-    list.className = "muted small";
-    list.style.marginTop = "10px";
+    list.className = "text-muted text-sm mt-2.5";
     list.appendChild(buildDiffList(row.candidate));
     details.appendChild(list);
 
     const topicBox = document.createElement("div");
-    topicBox.className = "topic-scores";
+    topicBox.className = "mt-2.5";
     topicBox.appendChild(buildTopicScoreList(row.topicScores));
 
     div.appendChild(top);
@@ -514,25 +522,24 @@
     const wrap = document.createElement("div");
 
     const heading = document.createElement("div");
-    heading.className = "small muted";
+    heading.className = "text-sm text-muted";
     heading.textContent = "Match fordelt på emner";
     wrap.appendChild(heading);
 
     if (!Array.isArray(topicScores) || !topicScores.length) {
       const none = document.createElement("div");
-      none.className = "muted small";
-      none.style.marginTop = "6px";
+      none.className = "text-muted text-sm mt-1.5";
       none.textContent = "Ingen emner med sammenlignelige svar.";
       wrap.appendChild(none);
       return wrap;
     }
 
     const list = document.createElement("div");
-    list.className = "topic-score-list";
+    list.className = "flex flex-wrap gap-2 mt-2";
 
     topicScores.forEach((item) => {
       const chip = document.createElement("div");
-      chip.className = "topic-score-chip";
+      chip.className = "border border-border rounded-full py-1 px-2 bg-black/5 text-xs";
       chip.textContent = `${item.topic}: ${item.pct}% (${item.compared})`;
       list.appendChild(chip);
     });
@@ -600,6 +607,9 @@
   function skipCurrent() {
     const q = currentQuestion();
     if (!q) return;
+    const existing = state.responses[q.id];
+    const alreadySkipped = existing && existing.value === null;
+    if (!alreadySkipped && countSkips() >= MAX_SKIPS) return;
 
     const r = ensureResponse(q);
     r.value = null;

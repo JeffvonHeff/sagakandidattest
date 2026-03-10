@@ -227,7 +227,6 @@ export default function KandidattestFramer({
             <p style={s.explain}>{question.explain}</p>
           )}
 
-
           <div style={s.grid}>
             {[
               { label: "Helt uenig", value: -2 },
