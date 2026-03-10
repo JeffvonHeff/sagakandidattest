@@ -358,12 +358,9 @@
     });
   }
 
-  // Scoring: vægtet cosine similarity på centrerede Likert-værdier.
-  // 1) Svarskala er -2..2 omkring 0.
-  // 2) Vi centrerer pr. person (trækker personens gennemsnit fra),
-  //    så "altid enig/uenig" bias dæmpes.
-  // 3) Vi bruger brugerens vægt (1..3) som wi i cosine-formlen.
-  // 4) Similarity i [-1,1] mappes til procent: 50 * (sim + 1).
+  // Scoring: Manhattan-distance som i KandidattestFramerManhattan.jsx
+  // pct = round(((maxDistance - distance) / maxDistance) * 100), hvor
+  // distance = sum(abs(user - candidate)) og maxDistance = antal * 4.
   function scoreCandidate(candidate) {
     const comparableAnswers = [];
     const topicTotals = {};
@@ -375,12 +372,10 @@
       const candVal = candidate.answers ? candidate.answers[q.id] : null;
       if (candVal === null || candVal === undefined) continue;
 
-      const w = clampInt(user.weight, 1, 3);
       const topic = (q.topic || "Øvrigt").trim() || "Øvrigt";
 
       const comparable = {
         topic,
-        weight: w,
         userValue: Number(user.value),
         candidateValue: Number(candVal),
       };
@@ -391,58 +386,39 @@
       topicTotals[topic].push(comparable);
     }
 
-    const totalSim = weightedCenteredCosine(comparableAnswers);
+    const totalScore = manhattanScore(comparableAnswers);
     const compared = comparableAnswers.length;
 
     const topicScores = Object.entries(topicTotals)
       .map(([topic, values]) => ({
         topic,
         compared: values.length,
-        pct: similarityToPercent(weightedCenteredCosine(values)),
+        pct: manhattanScore(values).pct,
       }))
       .sort((a, b) => {
         if (b.pct !== a.pct) return b.pct - a.pct;
         return a.topic.localeCompare(b.topic, "da");
       });
 
-    const pct = similarityToPercent(totalSim);
-    return { pct, compared, topicScores };
+    return {
+      pct: totalScore.pct,
+      compared,
+      distance: totalScore.distance,
+      topicScores,
+    };
   }
 
-  function weightedCenteredCosine(rows) {
-    if (!Array.isArray(rows) || rows.length === 0) return 0;
-
-    let userMeanSum = 0;
-    let candMeanSum = 0;
-    for (const row of rows) {
-      userMeanSum += row.userValue;
-      candMeanSum += row.candidateValue;
-    }
-
-    const userMean = userMeanSum / rows.length;
-    const candMean = candMeanSum / rows.length;
-
-    let numerator = 0;
-    let userNormSq = 0;
-    let candNormSq = 0;
-
-    for (const row of rows) {
-      const w = row.weight;
-      const uPrime = row.userValue - userMean;
-      const cPrime = row.candidateValue - candMean;
-      numerator += w * uPrime * cPrime;
-      userNormSq += w * uPrime * uPrime;
-      candNormSq += w * cPrime * cPrime;
-    }
-
-    const denominator = Math.sqrt(userNormSq) * Math.sqrt(candNormSq);
-    if (denominator === 0) return 0;
-    return numerator / denominator;
-  }
-
-  function similarityToPercent(similarity) {
-    const bounded = Math.max(-1, Math.min(1, similarity));
-    return Math.round(50 * (bounded + 1));
+  function manhattanScore(rows) {
+    const comparable = Array.isArray(rows) ? rows : [];
+    const distance = comparable.reduce(
+      (sum, row) => sum + Math.abs(row.userValue - row.candidateValue),
+      0,
+    );
+    const maxDistance = comparable.length * 4;
+    const pct = maxDistance
+      ? Math.round(((maxDistance - distance) / maxDistance) * 100)
+      : 0;
+    return { distance, pct };
   }
 
   function scoreAllCandidates(candidates) {
@@ -453,10 +429,11 @@
           candidate: c,
           pct: s.pct,
           compared: s.compared,
+          distance: s.distance,
           topicScores: s.topicScores,
         };
       })
-      .sort((a, b) => b.pct - a.pct);
+      .sort((a, b) => b.pct - a.pct || a.distance - b.distance);
   }
 
   function renderResultItem(row, idx) {
