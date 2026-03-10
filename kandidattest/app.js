@@ -456,7 +456,7 @@
 
     const photoWrap = document.createElement("div");
     photoWrap.className =
-      "aspect-[3/4] w-full overflow-hidden rounded-t-2xl bg-gray-200 flex items-center justify-center";
+      "aspect-[1/1] w-full overflow-hidden rounded-t-2xl bg-gray-200 flex items-center justify-center";
     if (row.candidate.photo) {
       const img = document.createElement("img");
       img.src = row.candidate.photo;
