@@ -51,6 +51,7 @@
     );
     if (!res.ok) throw new Error("HTTP " + res.status);
     var rows = await res.json();
+
     return rows.map(function (c) {
       var answers = {};
       (c.candidate_answers || []).forEach(function (a) {
@@ -61,6 +62,7 @@
         name: c.name || "Ukendt",
         party: c.party || "",
         area: c.area || "",
+        photo: c.photo || null,
         answers: answers,
       };
     });
@@ -143,9 +145,8 @@
   };
 
   function countSkips() {
-    return Object.values(state.responses).filter(
-      (r) => r && r.value === null,
-    ).length;
+    return Object.values(state.responses).filter((r) => r && r.value === null)
+      .length;
   }
 
   const STORAGE_KEY = `kandidattest:${data.quizId}`;
@@ -450,19 +451,43 @@
   }
 
   function renderResultItem(row, idx) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "flex flex-col";
+
+    const photoWrap = document.createElement("div");
+    photoWrap.className =
+      "aspect-[3/4] w-full overflow-hidden rounded-t-2xl bg-gray-200 flex items-center justify-center";
+    if (row.candidate.photo) {
+      const img = document.createElement("img");
+      img.src = row.candidate.photo;
+      img.alt = row.candidate.name || "";
+      img.className = "w-full h-full object-cover";
+      photoWrap.appendChild(img);
+    } else {
+      const placeholder = document.createElement("span");
+      placeholder.className = "text-gray-500 text-sm";
+      placeholder.textContent = "Intet billede";
+      photoWrap.appendChild(placeholder);
+    }
+    wrapper.appendChild(photoWrap);
+
     const div = document.createElement("div");
-    div.className = "border border-border rounded-2xl p-3.5 bg-surface shadow-lg";
+    div.className =
+      "border border-border border-t-0 rounded-t-none rounded-b-2xl p-3.5 bg-surface shadow-lg flex-1";
 
     const top = document.createElement("div");
 
     const name = document.createElement("div");
+    name.className = "text-lg";
     name.innerHTML = `<strong>${escapeHtml(row.candidate.name)}</strong> <span class="text-muted">(${escapeHtml(row.candidate.party || "Uafh")})</span>`;
 
     top.appendChild(name);
 
     const meta = document.createElement("div");
     meta.className = "text-muted text-sm";
-    meta.textContent = row.candidate.area ? `Område: ${row.candidate.area}` : "";
+    meta.textContent = row.candidate.area
+      ? `Område: ${row.candidate.area}`
+      : "";
     meta.className = "muted small";
     meta.textContent = row.candidate.area
       ? `Område: ${row.candidate.area}`
@@ -488,8 +513,10 @@
     div.appendChild(topicBox);
     div.appendChild(details);
 
-    if (idx === 0) div.style.outline = "2px solid rgba(255,255,255,.22)";
-    return div;
+    wrapper.appendChild(div);
+
+    if (idx === 0) wrapper.style.outline = "2px solid rgba(255,255,255,.22)";
+    return wrapper;
   }
 
   function buildDiffList(candidate) {
@@ -539,7 +566,8 @@
 
     topicScores.forEach((item) => {
       const chip = document.createElement("div");
-      chip.className = "border border-border rounded-full py-1 px-2 bg-black/5 text-xs";
+      chip.className =
+        "border border-border rounded-full py-1 px-2 bg-black/5 text-xs";
       chip.textContent = `${item.topic}: ${item.pct}% (${item.compared})`;
       list.appendChild(chip);
     });
@@ -746,7 +774,6 @@
     els.areaInput.addEventListener("blur", () => {
       validateArea(true);
     });
-
   }
 
   async function init() {
