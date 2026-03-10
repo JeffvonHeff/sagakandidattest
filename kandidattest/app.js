@@ -454,17 +454,11 @@
     div.className = "border border-border rounded-2xl p-3.5 bg-surface shadow-lg";
 
     const top = document.createElement("div");
-    top.className = "flex items-baseline justify-between gap-2.5 flex-wrap";
 
     const name = document.createElement("div");
     name.innerHTML = `<strong>${escapeHtml(row.candidate.name)}</strong> <span class="text-muted">(${escapeHtml(row.candidate.party || "Uafh")})</span>`;
 
-    const pill = document.createElement("div");
-    pill.className = "border border-border rounded-full py-1.5 px-2.5 bg-accent/20 text-sm text-text";
-    pill.textContent = `${row.pct}% match, ${row.compared} udsagn sammenlignet`;
-
     top.appendChild(name);
-    top.appendChild(pill);
 
     const meta = document.createElement("div");
     meta.className = "text-muted text-sm";
