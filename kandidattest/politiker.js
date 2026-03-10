@@ -47,16 +47,21 @@
       "</div>";
 
     if (error) {
-      html += '<div class="status err" style="margin-top:12px">' + escapeHtml(error) + "</div>";
+      html +=
+        '<div class="status err" style="margin-top:12px">' +
+        escapeHtml(error) +
+        "</div>";
     }
 
     html += "</section>";
     document.getElementById("app").innerHTML = html;
 
     document.getElementById("btnVerify").addEventListener("click", verifyToken);
-    document.getElementById("tokenInput").addEventListener("keydown", function (e) {
-      if (e.key === "Enter") verifyToken();
-    });
+    document
+      .getElementById("tokenInput")
+      .addEventListener("keydown", function (e) {
+        if (e.key === "Enter") verifyToken();
+      });
     document.getElementById("tokenInput").focus();
   }
 
@@ -81,7 +86,9 @@
       var data = await res.json();
 
       if (data.error === "invalid_token") {
-        renderTokenScreen("Ugyldigt token. Tjek at du har indtastet det korrekt.");
+        renderTokenScreen(
+          "Ugyldigt token. Tjek at du har indtastet det korrekt.",
+        );
         return;
       }
 
@@ -104,7 +111,9 @@
   /* ── Data loading ─────────────────────────────────────── */
 
   async function loadQuestions() {
-    var res = await fetch(API + "/questions?order=sort_order", { headers: HEADERS });
+    var res = await fetch(API + "/questions?order=sort_order", {
+      headers: HEADERS,
+    });
     if (!res.ok) throw new Error("HTTP " + res.status);
     questions = await res.json();
   }
@@ -112,7 +121,7 @@
   async function loadExistingAnswers(candidateId) {
     var res = await fetch(
       API + "/candidate_answers?candidate_id=eq." + candidateId,
-      { headers: HEADERS }
+      { headers: HEADERS },
     );
     if (!res.ok) return;
     var rows = await res.json();
@@ -165,9 +174,13 @@
       html +=
         '<div class="q-block">' +
         '<div class="row space"><strong>' +
-        (i + 1) + ". " + escapeHtml(q.text) +
+        (i + 1) +
+        ". " +
+        escapeHtml(q.text) +
         "</strong>" +
-        '<span class="muted small">' + escapeHtml(q.topic) + "</span></div>";
+        '<span class="muted small">' +
+        escapeHtml(q.topic) +
+        "</span></div>";
 
       if (q.explain) {
         html +=
@@ -181,14 +194,22 @@
       opts.forEach(function (o) {
         var sel = existing && existing.value === o.value ? " selected" : "";
         html +=
-          '<button type="button" class="btn ans' + sel + '" data-qid="' +
-          q.id + '" data-value="' + o.value + '">' + o.label + "</button>";
+          '<button type="button" class="btn ans' +
+          sel +
+          '" data-qid="' +
+          q.id +
+          '" data-value="' +
+          o.value +
+          '">' +
+          o.label +
+          "</button>";
       });
       html += "</div>";
 
       html +=
         '<div style="margin-top:8px">' +
-        '<textarea id="stance-' + q.id +
+        '<textarea id="stance-' +
+        q.id +
         '" placeholder="Begrundelse (valgfrit)" rows="1">' +
         escapeHtml(existing ? existing.stance : "") +
         "</textarea></div></div>";
@@ -204,7 +225,7 @@
       '<section class="card">' +
       '<label class="consent-label">' +
       '<input type="checkbox" id="acceptPhoto" checked />' +
-      '<span>Jeg accepterer, at I bruger billedet fra mit partis officielle hjemmeside til denne test</span>' +
+      "<span>Jeg accepterer, at I bruger billedet fra mit partis officielle hjemmeside til denne test</span>" +
       "</label></section>";
 
     html +=
@@ -220,9 +241,16 @@
   function profileField(label, id, value) {
     var readonly = value ? " readonly" : "";
     return (
-      '<label class="field profile-field"><span>' + escapeHtml(label) + "</span>" +
-      '<input id="' + id + '" type="text" value="' + escapeHtml(value || "") + '"' +
-      readonly + " /></label>"
+      '<label class="field profile-field"><span>' +
+      escapeHtml(label) +
+      "</span>" +
+      '<input id="' +
+      id +
+      '" type="text" value="' +
+      escapeHtml(value || "") +
+      '"' +
+      readonly +
+      " /></label>"
     );
   }
 
@@ -230,14 +258,18 @@
     if (value) {
       return (
         '<label class="field profile-field"><span>Storkreds</span>' +
-        '<input id="pArea" type="text" value="' + escapeHtml(value) + '" readonly /></label>'
+        '<input id="pArea" type="text" value="' +
+        escapeHtml(value) +
+        '" readonly /></label>'
       );
     }
     return (
       '<label class="field profile-field"><span>Storkreds</span>' +
       '<input id="pArea" type="text" list="storkedsList" placeholder="Vælg storkreds" />' +
       '<datalist id="storkedsList">' +
-      STORKREDSE.map(function (s) { return '<option value="' + s + '">'; }).join("") +
+      STORKREDSE.map(function (s) {
+        return '<option value="' + s + '">';
+      }).join("") +
       "</datalist></label>"
     );
   }
@@ -246,9 +278,11 @@
     if (!answers[qid]) answers[qid] = { value: value, stance: "" };
     else answers[qid].value = value;
 
-    document.querySelectorAll('[data-qid="' + qid + '"]').forEach(function (btn) {
-      btn.classList.toggle("selected", Number(btn.dataset.value) === value);
-    });
+    document
+      .querySelectorAll('[data-qid="' + qid + '"]')
+      .forEach(function (btn) {
+        btn.classList.toggle("selected", Number(btn.dataset.value) === value);
+      });
   }
 
   function bindFormEvents() {
@@ -284,7 +318,8 @@
     var photoConsent = document.getElementById("acceptPhoto").checked;
 
     if (!name || !party) {
-      statusEl.innerHTML = '<div class="status err">Udfyld venligst alle påkrævede felter.</div>';
+      statusEl.innerHTML =
+        '<div class="status err">Udfyld venligst alle påkrævede felter.</div>';
       return;
     }
 
@@ -315,7 +350,8 @@
           p_photo_consent: photoConsent,
         }),
       });
-      if (!profRes.ok) throw new Error("Profil-fejl: " + (await profRes.text()));
+      if (!profRes.ok)
+        throw new Error("Profil-fejl: " + (await profRes.text()));
 
       // Collect stance texts from textareas
       questions.forEach(function (q) {
