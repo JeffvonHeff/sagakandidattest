@@ -366,7 +366,7 @@
     const results = scoreAllCandidates(filteredCandidates);
 
     els.resultList.innerHTML = "";
-    results.slice(0, 12).forEach((row, idx) => {
+    results.slice(0, 4).forEach((row, idx) => {
       els.resultList.appendChild(renderResultItem(row, idx));
     });
   }
