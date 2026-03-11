@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="da">
   <head>
     <meta charset="utf-8" />
@@ -34,7 +34,7 @@
         <div class="flex flex-col">
           <h1 class="text-3xl leading-tight tracking-tight">Kandidattest</h1>
           <p class="max-w-prose text-lg text-muted">
-            Svar på følgende udsagn og se hvilke kandidater du bedst matcher.
+            Svar pÃ¥ fÃ¸lgende udsagn og se hvilke kandidater du bedst matcher.
           </p>
         </div>
       </div>
@@ -51,33 +51,28 @@
       >
         <h2 class="text-2xl leading-tight tracking-tight">Start</h2>
         <p class="text-muted">
-          Svar på udsagn og se hvilke kandidater du matcher bedst.
+          Svar pÃ¥ udsagn og se hvilke kandidater du matcher bedst.
         </p>
 
         <div class="flex flex-col md:w-1/2 mt-4 mb-8 gap-4">
           <label class="block">
-            <span class="block mb-2 text-muted text-sm"
-              >Vælg kommune (obligatorisk)</span
-            >
-            <input
+            <span class="block mb-2 text-muted text-sm">VÃ¦lg kommune (obligatorisk)</span>
+            <select
               id="areaInput"
-              type="text"
-              list="municipalityList"
-              autocomplete="off"
-              placeholder="Søg og vælg kommune"
               required
               class="w-full py-3 px-4 border-2 border-border bg-white text-text outline-none focus:ring-[3px] focus:ring-accent/45"
-            />
-            <datalist id="municipalityList"></datalist>
+            >
+              <option value="">Vælg kommune</option>
+            </select>
             <small
               id="areaError"
               class="error-text hidden lock mt-2 text-[#b00020]"
-              >Vælg en kommune fra listen for at starte testen.</small
+              >VÃ¦lg en kommune fra listen for at starte testen.</small
             >
           </label>
           <p class="text-muted text-sm">
-            Denne kandidattest er udviklet af unge frivillige, og bygger på 165
-            spørgsmål crowdsourced fra omkring 100 unge. Alle opstillede
+            Denne kandidattest er udviklet af unge frivillige, og bygger pÃ¥ 165
+            spÃ¸rgsmÃ¥l crowdsourced fra omkring 100 unge. Alle opstillede
             kandidater er blevet inviteret til at deltage.
           </p>
         </div>
@@ -107,7 +102,7 @@
         >
           <div>
             <h2 id="qTitle" class="text-xl leading-tight tracking-tight">
-              Spørgsmål
+              SpÃ¸rgsmÃ¥l
             </h2>
             <p id="qMeta" class="text-muted"></p>
           </div>
@@ -235,7 +230,7 @@
         ></div>
 
         <p class="text-muted text-sm mt-4 max-w-prose">
-          Bemærk, at ikke alle partier og kandidater har besvaret testen fuldt ud. Alle kandidater har dog fået tilsendt testen. Resultaterne afspejler altid den seneste tilgængelige status.
+          BemÃ¦rk, at ikke alle partier og kandidater har besvaret testen fuldt ud. Alle kandidater har dog fÃ¥et tilsendt testen. Resultaterne afspejler altid den seneste tilgÃ¦ngelige status.
         </p>
 
         <div
@@ -255,7 +250,7 @@
               id="btnShare"
               class="bg-black text-white text-sm py-3 px-4 cursor-pointer font-semibold tracking-wide transition hover:bg-black/80 hover:text-white hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
             >
-              Kopiér resultat link
+              KopiÃ©r resultat link
             </button>
             <button
               type="button"
@@ -271,8 +266,8 @@
           <summary>Hvordan beregnes match</summary>
           <p class="text-muted">
             Hvert svar mappes til en skala fra minus 2 til 2. Kandidaters svar
-            ligger på samme skala. For hvert udsagn beregnes en afvigelse.
-            Mindre afvigelse giver højere match.
+            ligger pÃ¥ samme skala. For hvert udsagn beregnes en afvigelse.
+            Mindre afvigelse giver hÃ¸jere match.
           </p>
         </details>
       </section>
@@ -284,8 +279,8 @@
           <p>SAGA Kandidattest 2026.</p>
           <p>
             Metode og transparens: Match beregnes som afstand mellem dine svar
-            og kandidaters svar på samme udsagn. Du kan vælge at vægte
-            spørgsmål. Se app.js for beregning.
+            og kandidaters svar pÃ¥ samme udsagn. Du kan vÃ¦lge at vÃ¦gte
+            spÃ¸rgsmÃ¥l. Se app.js for beregning.
           </p>
           <p>
             Privatlivspolitik: Vi indsamler eller gemmer ingen personlige data.
@@ -301,5 +296,9 @@
     <script src="app.js"></script>
   </body>
 </html>
+
+
+
+
 
 

@@ -105,7 +105,6 @@
 
     areaInput: document.getElementById("areaInput"),
     areaError: document.getElementById("areaError"),
-    municipalityList: document.getElementById("municipalityList"),
     toggleExplain: document.getElementById("toggleExplain"),
     btnStart: document.getElementById("btnStart"),
     btnReset: document.getElementById("btnReset"),
@@ -312,12 +311,19 @@
   }
 
   function populateMunicipalityList() {
-    els.municipalityList.innerHTML = "";
+    const currentValue = els.areaInput.value;
+    els.areaInput.innerHTML = "";
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Vælg kommune";
+    els.areaInput.appendChild(placeholder);
     MUNICIPALITIES.forEach((name) => {
       const option = document.createElement("option");
       option.value = name;
-      els.municipalityList.appendChild(option);
+      option.textContent = name;
+      els.areaInput.appendChild(option);
     });
+    els.areaInput.value = currentValue;
   }
 
   function renderQuiz() {
@@ -771,7 +777,7 @@
       });
     }
 
-    els.areaInput.addEventListener("input", () => {
+    els.areaInput.addEventListener("change", () => {
       validateArea(false);
     });
 
