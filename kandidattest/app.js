@@ -97,6 +97,7 @@
   const STORKREDS_DATA = window.STORKREDS_DATA || {};
   const MUNICIPALITIES = STORKREDS_DATA.KOMMUNER || [];
   const KOMMUNE_TO_STORKREDS = STORKREDS_DATA.KOMMUNE_TO_STORKREDS || {};
+  const FACTS_BY_QUESTION = window.FACTS_BY_QUESTION || {};
 
   const els = {
     start: document.getElementById("screen-start"),
@@ -112,6 +113,10 @@
     qTitle: document.getElementById("qTitle"),
     qMeta: document.getElementById("qMeta"),
     qText: document.getElementById("qText"),
+    btnQuestionFact: document.getElementById("btnQuestionFact"),
+    qFact: document.getElementById("qFact"),
+    factPopout: document.getElementById("factPopout"),
+    btnCloseFact: document.getElementById("btnCloseFact"),
     qExplain: document.getElementById("qExplain"),
     explainBox: document.getElementById("explainBox"),
 
@@ -138,6 +143,7 @@
     municipality: "",
     area: "",
     showExplain: false,
+    showFact: false,
     responses: {}, // { qid: { value: number|null, weight: number } }
     hasSavedSubmission: false,
     isSharedResultView: false,
@@ -218,6 +224,50 @@
     const n = Number(v);
     if (!Number.isFinite(n)) return min;
     return Math.max(min, Math.min(max, Math.trunc(n)));
+  }
+
+  function getFactForQuestion(questionId) {
+    const fact = FACTS_BY_QUESTION[questionId];
+    return typeof fact === "string" ? fact.trim() : "";
+  }
+
+  function hideFactPopout() {
+    state.showFact = false;
+    if (els.factPopout) els.factPopout.classList.add("hidden");
+    if (els.btnQuestionFact) {
+      els.btnQuestionFact.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  function renderFactForQuestion(questionId) {
+    const fact = getFactForQuestion(questionId);
+    const hasFact = !!fact;
+
+    if (els.btnQuestionFact) {
+      els.btnQuestionFact.classList.toggle("hidden", !hasFact);
+      els.btnQuestionFact.disabled = !hasFact;
+      els.btnQuestionFact.setAttribute("aria-expanded", "false");
+    }
+
+    if (els.qFact) els.qFact.textContent = fact;
+
+    if (!hasFact || !state.showFact) {
+      if (els.factPopout) els.factPopout.classList.add("hidden");
+      return;
+    }
+
+    if (els.factPopout) els.factPopout.classList.remove("hidden");
+    if (els.btnQuestionFact) {
+      els.btnQuestionFact.setAttribute("aria-expanded", "true");
+    }
+  }
+
+  function toggleFactPopout() {
+    const q = currentQuestion();
+    if (!q) return;
+    if (!getFactForQuestion(q.id)) return;
+    state.showFact = !state.showFact;
+    renderFactForQuestion(q.id);
   }
 
   function showScreen(name) {
@@ -338,6 +388,8 @@
     els.qTitle.textContent = `Udsagn ${state.step + 1}`;
     els.qMeta.textContent = q.topic ? `Emne: ${q.topic}` : "";
     els.qText.textContent = q.text;
+    state.showFact = false;
+    renderFactForQuestion(q.id);
     els.qExplain.textContent = q.explain || "";
     els.explainBox.classList.toggle(
       "hidden",
@@ -764,6 +816,12 @@
 
     els.btnRestart.addEventListener("click", restart);
     els.btnShare.addEventListener("click", copyShareLink);
+    if (els.btnQuestionFact) {
+      els.btnQuestionFact.addEventListener("click", toggleFactPopout);
+    }
+    if (els.btnCloseFact) {
+      els.btnCloseFact.addEventListener("click", hideFactPopout);
+    }
 
     if (els.btnStartOver)
       els.btnStartOver.addEventListener("click", startOverToStart);
