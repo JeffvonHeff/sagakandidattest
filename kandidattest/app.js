@@ -244,7 +244,9 @@
   function renderStart() {
     showScreen("start");
     els.areaInput.value = state.municipality;
-    els.toggleExplain.checked = state.showExplain;
+    if (els.toggleExplain) {
+      els.toggleExplain.checked = state.showExplain;
+    }
     validateArea(false);
   }
 
@@ -607,7 +609,7 @@
 
     state.municipality = findMunicipality(els.areaInput.value);
     state.area = getStorkredsForMunicipality(state.municipality);
-    state.showExplain = els.toggleExplain.checked;
+    state.showExplain = els.toggleExplain ? els.toggleExplain.checked : false;
     save();
     renderQuiz();
   }
@@ -762,10 +764,12 @@
     if (els.btnRestartToStart)
       els.btnRestartToStart.addEventListener("click", startOverToStart);
 
-    els.toggleExplain.addEventListener("change", () => {
-      state.showExplain = els.toggleExplain.checked;
-      save();
-    });
+    if (els.toggleExplain) {
+      els.toggleExplain.addEventListener("change", () => {
+        state.showExplain = els.toggleExplain.checked;
+        save();
+      });
+    }
 
     els.areaInput.addEventListener("input", () => {
       validateArea(false);
