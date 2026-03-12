@@ -401,7 +401,19 @@
     }
   }
 
+  /* ── Deadline screen ──────────────────────────────────── */
+
+  function renderDeadlineScreen() {
+    document.getElementById("app").innerHTML =
+      '<section class="card">' +
+      "<h2>Fristen er udløbet</h2>" +
+      '<p class="muted" style="margin-top:8px;">Fristen for at besvare kandidattesten digitalt er desværre overskredet.</p>' +
+      '<p class="muted" style="margin-top:8px;">Hvis du stadig gerne vil have dine svar med, kan du sende dem manuelt til os på e-mail, ' +
+      "så sørger vi for at få dem registreret.</p>" +
+      "</section>";
+  }
+
   /* ── Init ─────────────────────────────────────────────── */
 
-  renderTokenScreen();
+  renderDeadlineScreen();
 })();
