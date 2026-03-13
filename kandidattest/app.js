@@ -344,7 +344,7 @@
   function filterCandidatesByArea(candidates, area) {
     const a = normalizeArea(area);
     if (!a) return candidates;
-    return candidates.filter((c) => normalizeArea(c.area).includes(a));
+    return candidates.filter((c) => normalizeArea(c.area) === a);
   }
 
   function validateArea(showError = true) {

@@ -218,9 +218,11 @@
 
   function normalizeStorkreds(value) {
     if (!value || value === "N/A") return "";
-    return value
-      .trim()
-      .replace(/K?benhavn(?!s)\s*Omegn/g, "K?benhavns Omegn");
+    var normalized = value.trim();
+    if (/^K.benhavn\s+Omegn$/i.test(normalized)) {
+      return normalized.replace(/benhavn\s+Omegn$/i, "benhavns Omegn");
+    }
+    return normalized;
   }
 
   function normalizeKommune(value) {
